@@ -1,0 +1,28 @@
+---
+title: "Scraping data"
+output: html_notebook
+---
+
+
+```{r library}
+library(RSelenium)
+library(rvest)
+library(tidyverse)
+```
+
+```{r, cache=TRUE}
+base_url <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog/"
+urls <- str_c(base_url, c(2004:2020))
+
+Jstats <- map(urls, function(url){
+  Sys.sleep(rexp(1)+4)
+  url%>%
+    read_html()%>%
+    html_table(fill = T)%>%
+    .[[8]]
+})
+
+James <- do.call(rbind, Jstats)
+```
+
+
