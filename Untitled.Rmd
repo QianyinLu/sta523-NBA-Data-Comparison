@@ -1,0 +1,132 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(httr)
+library(rvest)
+library(jsonlite)
+library(rjson)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Description
+
+We are planning to do a project focusing on stats from well-known NBA players, Lebron James and Kevin Durant.
+The main source of our data will be from NBA website and a Chinese basketball apps HUPU.
+
+The first part is to explore the trend for these two players during different periods by extracting the related data of the shooting points(such as shooting percentage, three pointer made etc.) 
+In addition, we want to further compare these players by concentrating on games which they actually played against each other. 
+
+In order to better analyze the difference between the two players in terms of skills, there is one challenging task that we will try to do is to get the relevant data, such as shooting positions, which will takes large amount of time to collect and clean up. 
+
+In this project, we will use rvest, jsonlite etc. to obtain our data and tidyr to organize data into nicely-formatted data frame. 
+What’s more, to make the result more readable, we decide to create app using Rshiny with data and plots(using ggplot).
+
+## Data (Lebron James, espn.com)
+
+```{r}
+#regular season averages
+James <- read_html("https://www.espn.com/nba/player/stats/_/id/1966/lebron-james")
+
+column <- James %>% 
+  html_nodes(css = ".flex+ .pt4 .Table__TH") %>% 
+  html_text()
+  
+season <- James %>% 
+  html_nodes(css = ".flex+ .pt4 .Table--fixed-left .Table__TD:nth-child(1)") %>% 
+  html_text() 
+season <- season[-length(season)]  
+
+team <- James %>% 
+  html_nodes(css = ".flex+ .pt4 .pl2") %>% 
+  html_text() 
+
+data <- James %>% 
+  html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
+  html_text() %>%
+  matrix(ncol = length(column) - 2, byrow = TRUE)
+data <- data[-length(season),]
+
+RSA_James <- as.data.frame(cbind(season, team, data),
+                           stringsAsFactors = FALSE)     
+names(RSA_James) <- column
+```
+
+```{r}
+#regular season totals
+column2 <- James %>% 
+  html_nodes(css = ".pt4:nth-child(3) .Table__TH") %>% 
+  html_text()
+
+data2 <- James %>% 
+  html_nodes(".pt4:nth-child(3) .Table__Scroller .Table__TD") %>% 
+  html_text() %>%
+  matrix(ncol = length(column2) - 2, byrow = TRUE)
+data2 <- data2[-length(season),]
+
+RST_James <- as.data.frame(cbind(season, team, data2),
+                           stringsAsFactors = FALSE)     
+names(RST_James) <- column2
+```
+
+## Data (Kevin Durant,  espn.com)
+
+```{r}
+#regular season averages
+Durant <- read_html("https://www.espn.com/nba/player/stats/_/id/3202/kevin-durant")
+
+column <- Durant %>% 
+  html_nodes(css = ".flex+ .pt4 .Table__TH") %>% 
+  html_text()
+
+season <- Durant %>% 
+  html_nodes(css = ".flex+ .pt4 .Table--fixed-left .Table__TD:nth-child(1)") %>% 
+  html_text() 
+season <- season[-length(season)]  
+
+team <- Durant %>% 
+  html_nodes(css = ".flex+ .pt4 .pl2") %>% 
+  html_text() 
+team <- c("SEA", team)
+
+data <- Durant %>% 
+  html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
+  html_text() %>%
+  matrix(ncol = length(column) - 2, byrow = TRUE)
+data <- data[-length(season),]
+
+RSA_Durant <- as.data.frame(cbind(season, team, data),
+                           stringsAsFactors = FALSE)     
+names(RSA_Durant) <- column
+```
+
+```{r}
+#regular season totals
+column2 <- Durant %>% 
+  html_nodes(css = ".pt4:nth-child(3) .Table__TH") %>% 
+  html_text()
+
+data2 <- Durant %>% 
+  html_nodes(".pt4:nth-child(3) .Table__Scroller .Table__TD") %>% 
+  html_text() %>%
+  matrix(ncol = length(column2) - 2, byrow = TRUE)
+data2 <- data2[-length(season),]
+
+RST_Durant <- as.data.frame(cbind(season, team, data2),
+                           stringsAsFactors = FALSE)     
+names(RST_Durant) <- column2
+```
+
+
+```{r}
+save(RSA_Durant, file = "RSA_Durant.Rdata")
+save(RSA_James, file = "RSA_James.Rdata")
+save(RST_Durant, file = "RST_Durant.Rdata")
+save(RST_James, file = "RST_James.Rdata")
+```
+
+
