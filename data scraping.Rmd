@@ -40,7 +40,7 @@ JShoot_raw<- map(urls_S, function(url){
 
 ```{r Playoffs}
 urls_P <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog-playoffs/"
-urls_P %>% read_html() %>% html_table(fill = T) %>% .[[8]]
+JPlayoff <- urls_P %>% read_html() %>% html_table(fill = T) %>% .[[8]]
 ```
 
 
