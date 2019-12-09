@@ -11,36 +11,60 @@ library(RSelenium)
 ```
 
 ```{r Regular, cache=TRUE}
-base_url_R <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog/"
-urls_R <- str_c(base_url_R, c(2004:2020))
+base_url_R.J <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog/"
+urls_R.J <- str_c(base_url_R.J, c(2004:2020))
 
-JReg_raw<- map(urls_R, function(url){
+JReg_raw<- map(urls_R.J, function(url){
   Sys.sleep(rexp(1)+4)
-  url_R%>%
+  url%>%
     read_html()%>%
     html_table(fill = T)%>%
     .[[8]]
 })
 
 JReg <- do.call(rbind, JReg_raw)
+
+base_url_R.D <- "https://www.basketball-reference.com/players/d/duranke01/gamelog/"
+urls_R.D <- str_c(base_url_R.D, c(2008:2019))
+
+DReg_raw<- map(urls_R.D, function(url){
+  Sys.sleep(rexp(1)+4)
+  url%>%
+    read_html()%>%
+    html_table(fill = T)%>%
+    .[[8]]
+})
+
+DReg <- do.call(rbind, DReg_raw)
 ```
 
 ```{r Shooting}
-base_url_S <- "https://www.basketball-reference.com/players/j/jamesle01/shooting/"
-urls_S <- str_c(base_url_S,c(2004:2020))
-JShoot_raw<- map(urls_S, function(url){
+base_url_S.J <- "https://www.basketball-reference.com/players/j/jamesle01/shooting/"
+urls_S.J <- str_c(base_url_S.J,c(2004:2020))
+JShoot_raw<- map(urls_S.J, function(url){
   Sys.sleep(rexp(1)+4)
-  url_S%>%
+  url%>%
     read_html()%>%
-    html_table(fill = T)%>%
-    .[[1]]
+    html_table(fill = T)
+})
+
+base_url_S.D <- "https://www.basketball-reference.com/players/d/duranke01/shooting/"
+urls_S.D <- str_c(base_url_S.D,c(2008:2019))
+DShoot_raw<- map(urls_S.D, function(url){
+  Sys.sleep(rexp(1)+4)
+  url%>%
+    read_html()%>%
+    html_table(fill = T)
 })
 
 ```
 
 ```{r Playoffs}
-urls_P <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog-playoffs/"
-JPlayoff <- urls_P %>% read_html() %>% html_table(fill = T) %>% .[[8]]
+urls_P.J <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog-playoffs/"
+JPlayoff <- urls_P.J %>% read_html() %>% html_table(fill = T) %>% .[[8]]
+
+urls_P.D <- "https://www.basketball-reference.com/players/d/duranke01/gamelog-playoffs/"
+DPlayoff <- urls_P.D %>% read_html() %>% html_table(fill = T) %>% .[[8]]
 ```
 
 
