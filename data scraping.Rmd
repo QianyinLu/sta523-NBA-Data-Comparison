@@ -5,24 +5,43 @@ output: html_notebook
 
 
 ```{r library}
-library(RSelenium)
 library(rvest)
 library(tidyverse)
+library(RSelenium)
 ```
 
-```{r, cache=TRUE}
-base_url <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog/"
-urls <- str_c(base_url, c(2004:2020))
+```{r Regular, cache=TRUE}
+base_url_R <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog/"
+urls_R <- str_c(base_url_R, c(2004:2020))
 
-Jstats <- map(urls, function(url){
+JReg_raw<- map(urls_R, function(url){
   Sys.sleep(rexp(1)+4)
-  url%>%
+  url_R%>%
     read_html()%>%
     html_table(fill = T)%>%
     .[[8]]
 })
 
-James <- do.call(rbind, Jstats)
+JReg <- do.call(rbind, JReg_raw)
 ```
+
+```{r Shooting}
+base_url_S <- "https://www.basketball-reference.com/players/j/jamesle01/shooting/"
+urls_S <- str_c(base_url_S,c(2004:2020))
+JShoot_raw<- map(urls_S, function(url){
+  Sys.sleep(rexp(1)+4)
+  url_S%>%
+    read_html()%>%
+    html_table(fill = T)%>%
+    .[[1]]
+})
+
+```
+
+```{r Playoffs}
+urls_P <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog-playoffs/"
+urls_P %>% read_html() %>% html_table(fill = T) %>% .[[8]]
+```
+
 
 
