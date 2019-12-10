@@ -1,0 +1,18 @@
+---
+title: "Project_report"
+author: "Conjugate Family"
+date: "12/10/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Read Data
+
+```{r}
+James <- readRDS("data/james.rds")
+Durant <- readRDS("data/durant.rds")
+```
+
