@@ -10,7 +10,7 @@ suppressMessages(library(rjson))
 
 ## LeBron James
 base_url_R.J <- "https://www.basketball-reference.com/players/j/jamesle01/gamelog/"
-urls_R.J <- str_c(base_url_R.J, c(2004:2020))
+urls_R.J <- str_c(base_url_R.J, c(2004:2019))
 J.Reg_raw<- map(urls_R.J, function(url){
   Sys.sleep(rexp(1)+2)
   url%>%
@@ -36,14 +36,14 @@ D.Reg <- do.call(rbind, D.Reg_raw)
 
 ## Lebron James
 base_url_S.J <- "https://www.basketball-reference.com/players/j/jamesle01/shooting/"
-urls_S.J <- str_c(base_url_S.J,c(2004:2020))
+urls_S.J <- str_c(base_url_S.J,c(2004:2019))
 J.Shoot_raw <- map(urls_S.J, function(url){
   Sys.sleep(rexp(1)+2)
   url%>%
     read_html()%>%
     html_table(fill = T)
 })
-J.Shoot <- do.call(rbind, do.call(rbind, J.Shoot_raw))
+J.Shoot <- do.call(rbind, J.Shoot_raw)
 
 ## Kevin Durant
 base_url_S.D <- "https://www.basketball-reference.com/players/d/duranke01/shooting/"
@@ -54,7 +54,7 @@ D.Shoot_raw <- map(urls_S.D, function(url){
     read_html()%>%
     html_table(fill = T)
 })
-D.Shoot <- do.call(rbind, do.call(rbind, D.Shoot_raw))
+D.Shoot <- do.call(rbind, D.Shoot_raw)
 
 # Playoff data
 

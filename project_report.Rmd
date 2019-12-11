@@ -17,6 +17,9 @@ Durant <- readRDS("data/durant.rds")
 str(James$reg)
 str(Durant$reg)
 str(James$playoff)
-str(James$playoff)
+str(Durant$playoff)
+str(James$avg)
+str(Durant$avg)
+str(James$shoot[[1]])
+str(Durant$shoot[[1]])
 ```
-
