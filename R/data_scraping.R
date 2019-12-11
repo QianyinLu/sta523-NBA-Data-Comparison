@@ -1,10 +1,10 @@
 # package
-library(rvest)
-library(tidyverse)
-library(RSelenium)
-library(httr)
-library(jsonlite)
-library(rjson)
+suppressMessages(library(rvest))
+suppressMessages(library(tidyverse))
+suppressMessages(library(RSelenium))
+suppressMessages(library(httr))
+suppressMessages(library(jsonlite))
+suppressMessages(library(rjson))
 
 # Regular game data
 
@@ -88,9 +88,9 @@ data <- J.season %>%
   html_text() %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
 data <- data[-length(season),]
-J.ave <- as.data.frame(cbind(season, team, data),
+J.avg <- as.data.frame(cbind(season, team, data),
                            stringsAsFactors = FALSE)     
-names(J.ave) <- column
+names(J.avg) <- column
 
 ## Kevin Durant
 D.season <- read_html("https://www.espn.com/nba/player/stats/_/id/3202/kevin-durant")
@@ -110,12 +110,12 @@ data <- D.season %>%
   html_text() %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
 data <- data[-length(season),]
-D.ave <- as.data.frame(cbind(season, team, data),
+D.avg <- as.data.frame(cbind(season, team, data),
                             stringsAsFactors = FALSE)     
-names(D.ave) <- column
+names(D.avg) <- column
 
 # save RDS
-James <- list(J.Reg, J.Shoot, J.Playoff, J.ave)
-Durant <- list(D.Reg, D.Shoot, D.Playoff, D.ave)
+James <- list(reg = J.Reg, shoot = J.Shoot, playoff = J.Playoff, avg = J.avg)
+Durant <- list(reg = D.Reg, shoot = D.Shoot, playoff = D.Playoff, avg = D.avg)
 saveRDS(James, file = "data/james_raw.rds")
 saveRDS(Durant, file = "data/durant_raw.rds")
