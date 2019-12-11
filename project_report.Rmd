@@ -16,5 +16,7 @@ James <- readRDS("data/james.rds")
 Durant <- readRDS("data/durant.rds")
 str(James$reg)
 str(Durant$reg)
+str(James$playoff)
+str(James$playoff)
 ```
 

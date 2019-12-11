@@ -5,7 +5,7 @@ James <- readRDS("data/james_raw.rds")
 Durant <- readRDS("data/durant_raw.rds")
 
 J.shoot <- James$shoot
-J.playoff <- James$playoff
+
 J.avg <- James$avg
 D.shoot <- Durant$shoot
 D.playoff <- Durant$playoff
@@ -56,6 +56,36 @@ D.reg <- D.reg %>%
   select(-Res)
 D.reg$MP <- sapply(D.reg$MP, time.to.num)
 D.reg[, 5:26] <- lapply(D.reg[, 5:26], as.numeric)
+
+## cleaning playoff data
+J.playoff <- James$playoff
+colnames(J.playoff)[c(3,6,8,9)] <- c("Date","Home", "Game", "Res")
+J.playoff <- J.playoff %>%
+  filter(Rk != "" & Rk != "Rk") %>%
+  mutate(Home = ifelse(Home == "@", "Away", "Home"),
+         Date = as.Date(Date), 
+         Res.w = substr(Res, 1, 1),
+         Res.diff = as.numeric(substr(str_remove_all(Res, " "), 3,
+                                      str_length(str_remove_all(Res, " "))-1))) %>%
+  select(-Rk, -G, -Res)
+J.playoff[7:30] <- lapply(J.playoff[7:30], to.na)
+J.playoff$MP <- sapply(J.playoff$MP, time.to.num)
+J.playoff[6:28] <- lapply(J.playoff[6:28], as.numeric)
+
+D.playoff <- Durant$playoff
+colnames(D.playoff)[c(3,6,8,9)] <- c("Date","Home", "Game", "Res")
+D.playoff[32] <- NULL
+D.playoff <- D.playoff %>%
+  filter(Rk != "" & Rk != "Rk") %>%
+  mutate(Home = ifelse(Home == "@", "Away", "Home"),
+         Date = as.Date(Date), 
+         Res.w = substr(Res, 1, 1),
+         Res.diff = as.numeric(substr(str_remove_all(Res, " "), 3,
+                                      str_length(str_remove_all(Res, " "))-1))) %>%
+  select(-Rk, -G, -Res)
+D.playoff[7:30] <- lapply(D.playoff[7:30], to.na)
+D.playoff$MP <- sapply(D.playoff$MP, time.to.num)
+D.playoff[6:28] <- lapply(D.playoff[6:28], as.numeric)
 
 # saving data
 James <- list(reg = J.reg, shoot = J.shoot, playoff = J.playoff, avg = J.avg)
