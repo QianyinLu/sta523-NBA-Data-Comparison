@@ -33,6 +33,15 @@ shooting.clean <- function(df){
   return(df)
 }
 
+season.make <- function(start, end = NULL){
+  if(is.null(end)){
+    end = start
+  }
+  sapply(start:end, function(x){
+    paste0(x, "-", x + 1)
+  })
+}
+
 ## cleaning regular data
 J.reg <- James$reg
 colnames(J.reg)[c(6,8)] <- c("Home", "Res") # add colnames
@@ -108,6 +117,8 @@ J.avg <- J.avg[c("season", "Team", "GP", "GS", "MIN", "FG", "FGA", "FG%", "3P",
                  "3PA", "3P%", "FT", "FTA", "FT%", "OR", "DR", "REB", "AST", "BLK",
                  "STL", "PF", "TO","PTS")]
 J.avg[3:23] <- lapply(J.avg[3:23], as.numeric)
+J.avg$season <- season.make(2003, 2018)
+rownames(J.avg) <- J.avg$season
 
 D.avg <- Durant$avg
 D.avg$FGA <- sapply(D.avg$FG, split2)
@@ -120,13 +131,17 @@ D.avg <- D.avg[c("season", "Team", "GP", "GS", "MIN", "FG", "FGA", "FG%", "3P",
                  "3PA", "3P%", "FT", "FTA", "FT%", "OR", "DR", "REB", "AST", "BLK",
                  "STL", "PF", "TO","PTS")]
 D.avg[3:23] <- lapply(D.avg[3:23], as.numeric)
+D.avg$season <- season.make(2007, 2018)
+rownames(D.avg) <- D.avg$season
 
 ## cleaning shooting data
 J.shoot <- James$shoot
 J.shoot <- lapply(J.shoot, shooting.clean)
+names(J.shoot) <- season.make(2003, 2018)
 
 D.shoot <- Durant$shoot
 D.shoot <- lapply(D.shoot, shooting.clean)
+names(D.shoot) <- season.make(2007, 2018)
 
 # saving data
 James <- list(reg = J.reg, shoot = J.shoot, playoff = J.playoff, avg = J.avg)
