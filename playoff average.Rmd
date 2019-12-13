@@ -1,0 +1,75 @@
+---
+title: "playoff average"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(httr)
+library(rvest)
+library(jsonlite)
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+#playoff averages
+James <- read_html("https://www.espn.com/nba/player/stats/_/id/1966/type/nba/seasontype/3")
+
+column <- James %>% 
+  html_nodes(css = ".flex+ .pt4 .Table__TH") %>% 
+  html_text()
+  
+season <- James %>% 
+  html_nodes(css = ".flex+ .pt4 .Table--fixed-left .Table__TD:nth-child(1)") %>% 
+  html_text() 
+season <- season[-length(season)]
+
+team <- James %>% 
+  html_nodes(css = ".flex+ .pt4 .pl2") %>% 
+  html_text() 
+
+data <- James %>% 
+  html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
+  html_text() %>%
+  matrix(ncol = length(column) - 2, byrow = TRUE)
+data <- data[-(length(season)+1),]
+
+POA_James <- as.data.frame(cbind(season, team, data),
+                           stringsAsFactors = FALSE)     
+names(POA_James) <- column
+```
+
+```{r}
+#playoff season averages
+Durant <- read_html("https://www.espn.com/nba/player/stats/_/id/3202/type/nba/seasontype/3")
+
+column <- Durant %>% 
+  html_nodes(css = ".flex+ .pt4 .Table__TH") %>% 
+  html_text()
+
+season <- Durant %>% 
+  html_nodes(css = ".flex+ .pt4 .Table--fixed-left .Table__TD:nth-child(1)") %>% 
+  html_text() 
+season <- season[-length(season)]  
+
+team <- Durant %>% 
+  html_nodes(css = ".flex+ .pt4 .pl2") %>% 
+  html_text() 
+
+data <- Durant %>% 
+  html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
+  html_text() %>%
+  matrix(ncol = length(column) - 2, byrow = TRUE)
+data <- data[-(length(season)+1),]
+
+POA_Durant <- as.data.frame(cbind(season, team, data),
+                           stringsAsFactors = FALSE)     
+names(POA_Durant) <- column
+```
+
+
+
+
