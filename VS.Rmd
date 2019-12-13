@@ -7,20 +7,23 @@ output: html_document
 durant <- readRDS("durant.rds")
 james <- readRDS("james.rds")
 ### regular season
-DR <- cbind(player = "D", durant[[1]])
-JR <- cbind(player = "J", james[[1]])
+DR <- cbind(player = "Durant", durant[[1]])
+JR <- cbind(player = "James", james[[1]])
 
 innR <- DR %>% inner_join(JR, by = "Date") 
 JvsD_R <- innR %>% filter(Tm.x == Opp.y) %>% filter(!is.na(GS.y)&!is.na(GS.x))
-
+date_R <- JvsD_R[,'Date']
+JD_R <-rbind( DR%>% filter(Date %in% date_R), JR%>% filter(Date %in% date_R)) %>% arrange(Date)
 ```
 
 ```{r}
-DP <- cbind(player = "D", durant[[3]])
-JP <- cbind(player = "J", james[[3]])
+DP <- cbind(player = "Durant", durant[[3]])
+JP <- cbind(player = "James", james[[3]])
 
 innP <- DP %>% inner_join(JP, by = "Date") 
 JvsD_P <- innP %>% filter(Tm.x == Opp.y) %>% filter(!is.na(GS.y)&!is.na(GS.x))
+date_P <- JvsD_P[,'Date']
+JD_P <-rbind( DP%>% filter(Date %in% date_P), JP%>% filter(Date %in% date_P)) %>% arrange(Date)
 ```
 
 ```{r}
