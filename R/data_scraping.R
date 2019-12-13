@@ -87,7 +87,7 @@ data <- J.season %>%
   html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
   html_text() %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
-data <- data[-length(season),]
+data <- data[-(length(season)+1),]
 J.avg <- as.data.frame(cbind(season, team, data),
                            stringsAsFactors = FALSE)     
 names(J.avg) <- column
@@ -109,7 +109,7 @@ data <- D.season %>%
   html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
   html_text() %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
-data <- data[-length(season),]
+data <- data[-(length(season)+1),]
 D.avg <- as.data.frame(cbind(season, team, data),
                             stringsAsFactors = FALSE)     
 names(D.avg) <- column
