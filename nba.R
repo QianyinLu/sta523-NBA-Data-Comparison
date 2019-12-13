@@ -134,7 +134,11 @@ James_vs_Durant <- list("https://img.bleacherreport.net/img/images/photos/002/13
                      "https://pmcfootwearnews.files.wordpress.com/2017/01/kevin-durant-lebron-james-nike.jpg?w=700&h=437&crop=1")
   
   
-
+profile_photo <- list("https://i.cdn.turner.com/nba/nba/.element/media/2.0/teamsites/heat/custom-projects/Player_Bios/imgs/2012-13-lebron-james.jpg",
+                      "https://retohercules.com/images/lebron-james-cavs-png-7.png",
+                      "http://sportsnewsinstant.com/wp-content/uploads/2018/02/1966.png",
+                      "https://cdn-images-1.medium.com/max/661/1*TNbJGhrD-QH6uj9cJoTQqg.png",
+                      "https://bloximages.chicago2.vip.townnews.com/chickashanews.com/content/tncms/assets/v3/editorial/e/4c/e4ce40ef-fbbd-5177-8fdc-d74b0163fef6/53dfd860cedd5.image.jpg")
 
 
 
