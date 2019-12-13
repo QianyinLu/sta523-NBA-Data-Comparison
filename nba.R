@@ -121,3 +121,22 @@ jpg.list <- list(James.Heat <- c("http://www4.pictures.zimbio.com/gi/LeBron+Jame
                                       "https://images.complex.com/complex/images/c_limit,dpr_auto,q_90,w_720/fl_lossy,pg_1/xllde17yqfvpv4vgzw0n/kevin-durant",
                                       "https://static01.nyt.com/images/2017/04/07/sports/07durant-web1/07durant-web1-jumbo.jpg?quality=90&auto=webp",
                                       "https://cdn.hoopsrumors.com/files/2017/06/USATSI_10090886-900x1350.jpg"))
+
+
+
+
+
+James_vs_Durant <- list("https://img.bleacherreport.net/img/images/photos/002/132/194/hi-res-146489701_crop_north.jpg?h=533&w=800&q=70&crop_x=center&crop_y=top",
+                     "https://i.ytimg.com/vi/X1WiD3ySaDc/maxresdefault.jpg",
+                     "https://usatftw.files.wordpress.com/2017/06/usatsi_9768674-1.jpg?w=1000&h=600&crop=1",
+                     "https://static01.nyt.com/images/2017/06/09/sports/09ARATON1/09ARATON1-articleLarge.jpg?quality=75&auto=webp&disable=upscale",
+                     "https://fansided.com/files/2014/01/81745281.jpg",
+                     "https://pmcfootwearnews.files.wordpress.com/2017/01/kevin-durant-lebron-james-nike.jpg?w=700&h=437&crop=1")
+  
+  
+
+
+
+
+
+
