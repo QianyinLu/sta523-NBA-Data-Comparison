@@ -71,6 +71,8 @@ D.Playoff <- urls_P.D %>%
 # Season data
 
 ## Lebron James
+
+### Regular Average
 J.season <- read_html("https://www.espn.com/nba/player/stats/_/id/1966/lebron-james")
 column <- J.season %>% 
   html_nodes(css = ".flex+ .pt4 .Table__TH") %>% 
@@ -87,12 +89,37 @@ data <- J.season %>%
   html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
   html_text() %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
-data <- data[-length(season),]
-J.avg <- as.data.frame(cbind(season, team, data),
+data <- data[-(length(season)+1),]
+J.reg.avg <- as.data.frame(cbind(season, team, data),
                            stringsAsFactors = FALSE)     
-names(J.avg) <- column
+names(J.reg.avg) <- column
+
+### Playoff Average
+James <- read_html("https://www.espn.com/nba/player/stats/_/id/1966/type/nba/seasontype/3")
+column <- James %>% 
+  html_nodes(css = ".flex+ .pt4 .Table__TH") %>% 
+  html_text()
+
+season <- James %>% 
+  html_nodes(css = ".flex+ .pt4 .Table--fixed-left .Table__TD:nth-child(1)") %>% 
+  html_text() 
+season <- season[-length(season)]
+team <- James %>% 
+  html_nodes(css = ".flex+ .pt4 .pl2") %>% 
+  html_text() 
+data <- James %>% 
+  html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
+  html_text() %>%
+  matrix(ncol = length(column) - 2, byrow = TRUE)
+data <- data[-(length(season)+1),]
+J.playoff.avg <- as.data.frame(cbind(season, team, data),
+                           stringsAsFactors = FALSE)     
+names(J.playoff.avg) <- column
+J.avg <- list(regular = J.reg.avg, playoff = J.playoff.avg)
 
 ## Kevin Durant
+
+### Regular Average
 D.season <- read_html("https://www.espn.com/nba/player/stats/_/id/3202/kevin-durant")
 column <- D.season %>% 
   html_nodes(css = ".flex+ .pt4 .Table__TH") %>% 
@@ -109,10 +136,32 @@ data <- D.season %>%
   html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
   html_text() %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
-data <- data[-length(season),]
-D.avg <- as.data.frame(cbind(season, team, data),
+data <- data[-(length(season)+1),]
+D.reg.avg <- as.data.frame(cbind(season, team, data),
                             stringsAsFactors = FALSE)     
-names(D.avg) <- column
+names(D.reg.avg) <- column
+
+### Playoff Average
+Durant <- read_html("https://www.espn.com/nba/player/stats/_/id/3202/type/nba/seasontype/3")
+column <- Durant %>% 
+  html_nodes(css = ".flex+ .pt4 .Table__TH") %>% 
+  html_text()
+season <- Durant %>% 
+  html_nodes(css = ".flex+ .pt4 .Table--fixed-left .Table__TD:nth-child(1)") %>% 
+  html_text() 
+season <- season[-length(season)]  
+team <- Durant %>% 
+  html_nodes(css = ".flex+ .pt4 .pl2") %>% 
+  html_text() 
+data <- Durant %>% 
+  html_nodes(".flex+ .pt4 .Table__Scroller .Table__TD") %>% 
+  html_text() %>%
+  matrix(ncol = length(column) - 2, byrow = TRUE)
+data <- data[-(length(season)+1),]
+D.playoff.avg <- as.data.frame(cbind(season, team, data),
+                            stringsAsFactors = FALSE)     
+names(D.playoff.avg) <- column
+D.avg <- list(regular = D.reg.avg, playoff = D.playoff.avg)
 
 # save RDS
 James <- list(reg = J.Reg, shoot = J.Shoot, playoff = J.Playoff, avg = J.avg)

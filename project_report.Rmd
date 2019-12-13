@@ -7,6 +7,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(tidyverse))
+suppressMessages(library(shiny))
+suppressMessages(library(shinydashboard))
 ```
 
 ## Read Data
@@ -14,12 +17,176 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 James <- readRDS("data/james.rds")
 Durant <- readRDS("data/durant.rds")
-str(James$reg)
-str(Durant$reg)
-str(James$playoff)
-str(Durant$playoff)
-str(James$avg)
-str(Durant$avg)
-str(James$shoot[[1]])
-str(Durant$shoot[[1]])
 ```
+
+```{r}
+ui <- dashboardPage(
+  dashboardHeader(title = "James VS Durant"),
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Regular & Playoff", tabName = "rp", icon = icon("th")),
+      menuItem("Shooting", tabName = "sh", icon = icon("th")),
+      menuItem("Head to head", tabName = "hh", icon = icon("th"))
+    )
+  ),
+  dashboardBody(
+    tabItems(
+      # Regular & Playoff
+      tabItem(tabName = "rp",
+              h1("Regular & Playoff"),
+              h2("Statistics Comparison"),
+              selectInput(inputId = "rpType",
+                          label = "Statistics you wish to compare",
+                          choices = c("Minute", "Points", "Rebound", "Assist",
+                                      "Block", "Steal", "Field Goal Percentage",
+                                      "3-Point Percentage", "Free Shoot Percentage")),
+              fluidRow(
+                column(width = 6, plotOutput(outputId = "JrpPlot")),
+                column(width = 6, plotOutput(outputId = "DrpPlot"))
+              ),
+              h2("Data Comparison"),
+              fluidRow(
+                column(width = 6,
+                       selectInput(inputId = "JrpSeason", label = "Lebron James",
+                                              choices = unique(James$avg$season)),
+                       DT::dataTableOutput(outputId = "Jrpdata")),
+                column(width = 6,
+                       selectInput(inputId = "DrpSeason", label = "Kevin Durant",
+                                              choices = unique(Durant$avg$season)),
+                       DT::dataTableOutput(outputId = "Drpdata"))
+              )
+              
+      ),
+      
+      # Shooting
+      tabItem(tabName = "sh",
+              h1("Shooting"),
+              selectInput(inputId = "shSplit", label = "Type",
+                          choices = c("Game Location", "Shot Distance",
+                                      "Shot Type", "Time Left in Quarter"))
+      ),
+      
+      # Home
+      tabItem(tabName = "hh",
+              h1("Head to head"),
+      )
+    )
+  )
+)
+
+server <- function(input, output){
+  output$JrpPlot <- renderPlot({
+    g <- ggplot(data = James$avg)
+    if(input$rpType == "Minute"){
+      g <- g +
+        geom_point(aes(x = season, y = MIN, colour = regular), size = 3)
+    }
+    if(input$rpType == "Points"){
+      g <- g +
+        geom_point(aes(x = season, y = PTS, colour = regular), size = 3)
+    }
+    if(input$rpType == "Rebound"){
+      g <- g +
+        geom_point(aes(x = season, y = REB, colour = regular), size = 3)
+    }
+    if(input$rpType == "Assist"){
+      g <- g +
+        geom_point(aes(x = season, y = AST, colour = regular), size = 3)
+    }
+    if(input$rpType == "Block"){
+      g <- g +
+        geom_point(aes(x = season, y = BLK, colour = regular), size = 3)
+    }
+    if(input$rpType == "Steal"){
+      g <- g +
+        geom_point(aes(x = season, y = STL, colour = regular), size = 3)
+    }
+    if(input$rpType == "Field Goal Percentage"){
+      g <- g +
+        geom_point(aes(x = season, y = `FG%`, colour = regular), size = 3)
+    }
+    if(input$rpType == "3-Point Percentage"){
+      g <- g +
+        geom_point(aes(x = season, y = `3P%`, colour = regular), size = 3)
+    }
+    if(input$rpType == "Free Shoot Percentage"){
+      g <- g +
+        geom_point(aes(x = season, y = `FTA`, colour = regular), size = 3)
+    }
+    g +
+      labs(title = paste(input$rpType, "For Lebron James"),
+           x = "Season",
+           y = input$rpType) +
+      theme_light() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+            title = element_text(size = 20))
+  })
+  output$DrpPlot <- renderPlot({
+    g <- ggplot(data = Durant$avg)
+    if(input$rpType == "Minute"){
+      g <- g +
+        geom_point(aes(x = season, y = MIN, colour = regular), size = 3)
+    }
+    if(input$rpType == "Points"){
+      g <- g +
+        geom_point(aes(x = season, y = PTS, colour = regular), size = 3)
+    }
+    if(input$rpType == "Rebound"){
+      g <- g +
+        geom_point(aes(x = season, y = REB, colour = regular), size = 3)
+    }
+    if(input$rpType == "Assist"){
+      g <- g +
+        geom_point(aes(x = season, y = AST, colour = regular), size = 3)
+    }
+    if(input$rpType == "Block"){
+      g <- g +
+        geom_point(aes(x = season, y = BLK, colour = regular), size = 3)
+    }
+    if(input$rpType == "Steal"){
+      g <- g +
+        geom_point(aes(x = season, y = STL, colour = regular), size = 3)
+    }
+    if(input$rpType == "Field Goal Percentage"){
+      g <- g +
+        geom_point(aes(x = season, y = `FG%`, colour = regular), size = 3)
+    }
+    if(input$rpType == "3-Point Percentage"){
+      g <- g +
+        geom_point(aes(x = season, y = `3P%`, colour = regular), size = 3)
+    }
+    if(input$rpType == "Free Shoot Percentage"){
+      g <- g +
+        geom_point(aes(x = season, y = `FTA`, colour = regular), size = 3)
+    }
+    g +
+      labs(title = paste(input$rpType, "For Kevin Durant"),
+           x = "Season",
+           y = input$rpType) +
+      theme_light() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+            title = element_text(size = 20))
+  })
+  
+  output$Jrpdata <- DT::renderDataTable({
+    data <- James$avg %>%
+      filter(season == input$JrpSeason) %>%
+      select(MIN, PTS, REB, AST, BLK, STL, `FG%`, `3P%`, `FTA`, regular)
+    rownames(data) <- data$regular
+    data <- select(data, -regular)
+    as.data.frame(t(as.matrix.data.frame(data)))
+  })
+  
+  output$Drpdata <- DT::renderDataTable({
+    data <- Durant$avg %>%
+      filter(season == input$DrpSeason) %>%
+      select(MIN, PTS, REB, AST, BLK, STL, `FG%`, `3P%`, `FTA`, regular)
+    rownames(data) <- data$regular
+    data <- select(data, -regular)
+    as.data.frame(t(as.matrix.data.frame(data)))
+  })
+}
+
+shinyApp(ui, server)
+```
+
