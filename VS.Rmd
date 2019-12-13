@@ -1,0 +1,34 @@
+---
+title: "JameVSDurant"
+output: html_document
+---
+
+```{r}
+durant <- readRDS("durant.rds")
+james <- readRDS("james.rds")
+### regular season
+DR <- cbind(player = "D", durant[[1]])
+JR <- cbind(player = "J", james[[1]])
+
+innR <- DR %>% inner_join(JR, by = "Date") 
+JvsD_R <- innR %>% filter(Tm.x == Opp.y) %>% filter(!is.na(GS.y)&!is.na(GS.x))
+
+```
+
+```{r}
+DP <- cbind(player = "D", durant[[3]])
+JP <- cbind(player = "J", james[[3]])
+
+innP <- DP %>% inner_join(JP, by = "Date") 
+JvsD_P <- innP %>% filter(Tm.x == Opp.y) %>% filter(!is.na(GS.y)&!is.na(GS.x))
+```
+
+```{r}
+VSurl <- "https://www.basketball-reference.com/play-index/tiny.fcgi?id=OpeeF"
+VSurl%>%
+    read_html()%>%
+    html_table(fill = T)
+#First season reg average data; second all data; third playoff avg; fourth playoff all
+```
+
+
