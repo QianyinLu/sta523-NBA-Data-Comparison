@@ -9,7 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 suppressMessages(library(tidyverse))
 suppressMessages(library(shiny))
-suppressMessages(library(shinydashboard))
 ```
 
 ## Read Data
@@ -17,64 +16,108 @@ suppressMessages(library(shinydashboard))
 ```{r}
 James <- readRDS("data/james.rds")
 Durant <- readRDS("data/durant.rds")
+Image <- readRDS("data/image.rds")
 ```
 
 ```{r}
-ui <- dashboardPage(
-  dashboardHeader(title = "James VS Durant"),
-  dashboardSidebar(
-    sidebarMenu(
-      menuItem("Regular & Playoff", tabName = "rp", icon = icon("th")),
-      menuItem("Shooting", tabName = "sh", icon = icon("th")),
-      menuItem("Head to head", tabName = "hh", icon = icon("th"))
-    )
-  ),
-  dashboardBody(
-    tabItems(
-      # Regular & Playoff
-      tabItem(tabName = "rp",
-              h1("Regular & Playoff"),
-              h2("Statistics Comparison"),
-              selectInput(inputId = "rpType",
-                          label = "Statistics you wish to compare",
-                          choices = c("Minute", "Points", "Rebound", "Assist",
-                                      "Block", "Steal", "Field Goal Percentage",
-                                      "3-Point Percentage", "Free Shoot Percentage")),
-              fluidRow(
-                column(width = 6, plotOutput(outputId = "JrpPlot")),
-                column(width = 6, plotOutput(outputId = "DrpPlot"))
-              ),
-              h2("Data Comparison"),
-              fluidRow(
-                column(width = 6,
-                       selectInput(inputId = "JrpSeason", label = "Lebron James",
-                                              choices = unique(James$avg$season)),
+ui <- fixedPage(
+  navbarPage(title = "James VS Durant",
+             tabPanel(title = "Basic",
+           h1("Regular & Playoff"),
+           h2("Statistics Comparison"),
+           selectInput(inputId = "rpType",
+                       label = "Statistics you wish to compare",
+                       choices = c("Minute", "Points", "Rebound", "Assist",
+                                   "Block", "Steal", "Field Goal Percentage",
+                                   "3-Point Percentage", "Free Shoot Percentage")),
+           fixedRow(
+             column(width = 6, plotOutput(outputId = "JrpPlot")),
+             column(width = 6, plotOutput(outputId = "DrpPlot"))
+           ),
+           h2("Data Comparison"),
+           fixedRow(
+             column(width = 6,
+                    selectInput(inputId = "JrpSeason", label = "Lebron James",
+                                choices = unique(James$avg$season))
+             ),
+             column(width = 6,
+                    selectInput(inputId = "DrpSeason", label = "Kevin Durant",
+                                choices = unique(Durant$avg$season))
+             )
+           ),
+           fixedRow(
+             column(width = 3,
+                       htmlOutput(outputId = "Jimage1")),
+             column(width = 3,
                        DT::dataTableOutput(outputId = "Jrpdata")),
-                column(width = 6,
-                       selectInput(inputId = "DrpSeason", label = "Kevin Durant",
-                                              choices = unique(Durant$avg$season)),
-                       DT::dataTableOutput(outputId = "Drpdata"))
+             column(width = 3,
+                      DT::dataTableOutput(outputId = "Drpdata")),
+             column(width = 3,
+                       htmlOutput(outputId = "Dimage1"))
+             )
+   ),
+  tabPanel(title = "Advanced",
+           sidebarLayout(
+              sidebarPanel(
+                uiOutput(outputId = "player_photo"),
+                selectInput(inputId = "player_name",
+                            label = "Player",
+                            choices = c("Kevin Durant", "Lebron James")),
+                
+                conditionalPanel(
+                  condition = "input.player_name == \"Kevin Durant\"",
+                  selectInput(inputId = "season_D",
+                              label = "Season",
+                              choices = unique(Durant$avg$season))
+                  ),
+                conditionalPanel(
+                  condition = "input.player_name == \"Lebron James\"",
+                  selectInput(inputId = "season_J",
+                              label = "Season",
+                              choices = unique(James$avg$season))
+                  ),
+                radioButtons(inputId = "season_type",
+                             label = "Season Type",
+                             choices = c("Regular Season", "Playoffs")),
+                radioButtons(inputId = "court_theme",
+                       label = "Theme",
+                       choices = c("Light", "Dark"),
+                       selected = "Light")
+                ),
+              mainPanel(
+                h2(textOutput("chart_header_player")),
+                h4(textOutput("chart_header_info")),
+                h4(textOutput("chart_header_team")),
+                plotOutput("court"),
+                h3(textOutput("summary_stats_header")),
+                tableOutput("summary_stats")
+                )
               )
-              
-      ),
-      
-      # Shooting
-      tabItem(tabName = "sh",
-              h1("Shooting"),
-              selectInput(inputId = "shSplit", label = "Type",
-                          choices = c("Game Location", "Shot Distance",
-                                      "Shot Type", "Time Left in Quarter"))
-      ),
-      
-      # Home
-      tabItem(tabName = "hh",
-              h1("Head to head"),
-      )
-    )
+           )
   )
 )
-
+  
 server <- function(input, output){
+  output$court <- renderPlot({
+    ggplot(data = James$avg) +
+      geom_point(aes(x = season, y = MIN, colour = regular), size = 3)
+  })
+  
+  output$chart_header_player <- renderText({
+    input$player_name
+  })
+  output$chart_header_info <- renderText({
+    if(input$player_name == "Lebron James"){
+      paste(input$season_J, input$season_type)
+    }
+    else{
+      paste(input$season_D, input$season_type)
+    }
+  })
+  output$chart_header_team <- renderText({
+    "Golden States Warriors"
+  })
+  
   output$JrpPlot <- renderPlot({
     g <- ggplot(data = James$avg)
     if(input$rpType == "Minute"){
@@ -168,23 +211,30 @@ server <- function(input, output){
             title = element_text(size = 20))
   })
   
-  output$Jrpdata <- DT::renderDataTable({
-    data <- James$avg %>%
-      filter(season == input$JrpSeason) %>%
+  rp.data <- function(df, target){
+    data <- df %>%
+      filter(season == target) %>%
       select(MIN, PTS, REB, AST, BLK, STL, `FG%`, `3P%`, `FTA`, regular)
     rownames(data) <- data$regular
     data <- select(data, -regular)
     as.data.frame(t(as.matrix.data.frame(data)))
+  }
+  
+  output$Jrpdata <- DT::renderDataTable({
+    rp.data(James$avg, input$JrpSeason)
   })
   
   output$Drpdata <- DT::renderDataTable({
-    data <- Durant$avg %>%
-      filter(season == input$DrpSeason) %>%
-      select(MIN, PTS, REB, AST, BLK, STL, `FG%`, `3P%`, `FTA`, regular)
-    rownames(data) <- data$regular
-    data <- select(data, -regular)
-    as.data.frame(t(as.matrix.data.frame(data)))
+    rp.data(Durant$avg, input$DrpSeason)
   })
+  
+  createImage <- function(url){
+    sprintf('<img src="%s" height="250" width ="250"></img>', url)
+  }
+  
+  output$Jimage1 <- renderText({
+       createImage(Image$James.Heat[2])
+    })
 }
 
 shinyApp(ui, server)
