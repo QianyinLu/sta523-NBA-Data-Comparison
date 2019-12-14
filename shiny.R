@@ -44,7 +44,60 @@ ui <- fixedPage(
                         tableOutput("summary_stats"))
                  )
                ),
-             tabPanel(title = "Advanced")
+             tabPanel(title = "Advanced",
+                      fixedRow(
+                        column(width = 4,
+                               h2("Player Advanced Data"),
+                               selectInput(inputId = "advance_player_name", label = "Player",
+                                           choices = c("Lebron James", "Kevin Durant")),
+                               selectInput(inputId = "advance_data_type", label = "Type",
+                                           choices = c("Game Location", "Game Result",
+                                                       "Shot Points", "Shot Distance",
+                                                       "Shot Type", "Quarter",
+                                                       "Time Left in Quarter",
+                                                       "Margin","Opponent","Month")),
+                               radioButtons(inputId = "advance_style", label = "Style",
+                                            choices = c("light", "dark"))
+                        ),
+                        
+                        column(width = 8,
+                               h2(textOutput("advance_player_name")),
+                               plotOutput("advance_plot"),
+                               div(align = "right",
+                                   h4(textOutput("advance_plot_source"))),
+                               h3(textOutput("advance_summary_stats_header")),
+                               tableOutput("advance_summary_stats"),
+                               div(align = "right",
+                                   h4(textOutput("advance_table_source")))
+                        )
+                      ),
+                      fluidRow(
+                        column(width = 4,
+                               selectInput(inputId = "advance_data_type_2", label = "Type",
+                                           choices = c("Game Location", "Game Result",
+                                                       "Shot Points", "Shot Distance",
+                                                       "Shot Type", "Quarter",
+                                                       "Time Left in Quarter",
+                                                       "Margin","Opponent","Month")),
+                               selectInput(inputId = "advance_james_season", label = "Season for James",
+                                           choices =  unique(James$avg$season)),
+                               selectInput(inputId = "advance_durant_season", label = "Season for Durant",
+                                           choices = unique(Durant$avg$season))
+                        ),
+                        
+                        column(width = 8,
+                               h2(textOutput("advance_title")),
+                               fluidRow(
+                                 column(width = 6,
+                                        plotOutput("advance_p1")
+                                 ),
+                                 column(width = 6,
+                                        plotOutput("advance_p2")
+                                 )
+                               )
+                        )
+                      )
+             )
   )
 )
 
@@ -70,6 +123,10 @@ server <- function(input, output){
     ifelse(input$player_stats_1 == input$player_stats_2, input$player_stats_1,
            paste(input$player_stats_1, "VS", input$player_stats_2))
   })
+  output$summary_stats_header <- renderText({
+    paste("James in Season", input$basic_season_J,
+          "VS", "Durant in Season", input$basic_season_D)
+  })
   
   ## function to plot
   switch_stats <- function(x){
@@ -89,22 +146,51 @@ server <- function(input, output){
       tmp <- data.frame(x = data[["season"]],
                         y = data[[switch_stats(stats1)]],
                         colour = data[["regular"]])
-      g <- ggplot(data = tmp, aes(x = x, y = y, colour = colour)) +
-        geom_point(size = 4, alpha = 0.5) +
+      g <- ggplot(data = tmp, aes(x = x, y = y, group = colour, colour = colour)) +
+        geom_point(size = 5) +
+        geom_line(size = 1.5) +
         labs(x = "Season", y = stats1)
+      if(style == "light"){
+        g <- g +
+          theme_light() +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        }else{
+        g <- g +
+          theme_dark() +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        }
     }else{
       tmp <- data.frame(x = data[[switch_stats(stats1)]],
                         y = data[[switch_stats(stats2)]],
                         colour = data[["regular"]])
       g <- ggplot(data = tmp, aes(x = x, y = y, colour = colour)) +
-        geom_point(size = 4, alpha = 0.5) +
+        geom_point(size = 5) +
         labs(x = stats1, y = stats2)
+      if(style == "light"){
+        g <- g +
+          theme_light() +
+          theme(axis.text = element_text(size = 15),
+                axis.title = element_text(size = 20),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+      }else{
+        g <- g +
+          theme_dark() +
+          theme(axis.text = element_text(size = 15),
+                axis.title = element_text(size = 20),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+      }
     }
-    if(style == "light"){
-      g <- g + theme_light() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-    }else{
-      g <- g + theme_dark() + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-    }
+    
     return(g)
   }
   
@@ -119,7 +205,7 @@ server <- function(input, output){
     df$Player <- player
     data <- df %>%
       filter(season == target) %>%
-      select(Player, regular, MIN, PTS, REB, AST, BLK, STL, `FG%`, `3P%`, `FTA`)
+      select(Player, regular, MIN, PTS, REB, AST, BLK, STL, `FG%`, `3P%`, `FT%`)
     rownames(data) = NULL
     colnames(data)[2] <- "Season Type"
     data

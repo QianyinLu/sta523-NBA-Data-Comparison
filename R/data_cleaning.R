@@ -237,8 +237,28 @@ D.shoot <- lapply(D.shoot, function(x){
   return(df[,c(ncol(df), 1:(ncol(df)-1))])
 })
 
+## getting record of face-to-face match between J and D
+DR <- cbind(player = "Durant", D.reg)
+JR <- cbind(player = "James", J.reg)
+innR <- DR %>% 
+  inner_join(JR, by = "Date") 
+JvsD_R <- innR %>% 
+  filter(Tm.x == Opp.y) %>% 
+  filter(!is.na(GS.y)&!is.na(GS.x))
+date_R <- JvsD_R[,'Date']
+JD_R <-rbind( DR%>% filter(Date %in% date_R), JR%>% filter(Date %in% date_R)) %>%
+  arrange(Date)
+DP <- cbind(player = "Durant", D.playoff)
+JP <- cbind(player = "James", J.playoff)
+innP <- DP %>% inner_join(JP, by = "Date") 
+JvsD_P <- innP %>% filter(Tm.x == Opp.y) %>% filter(!is.na(GS.y)&!is.na(GS.x))
+date_P <- JvsD_P[,'Date']
+JD_P <-rbind( DP%>% filter(Date %in% date_P), JP%>% filter(Date %in% date_P)) %>% arrange(Date)
+
 # saving data
-James <- list(reg = J.reg, shoot = J.shoot, playoff = J.playoff, avg = J.avg)
-Durant <- list(reg = D.reg, shoot = D.shoot, playoff = D.playoff, avg = D.avg)
+James <- list(avg = J.avg, shoot = J.shoot)
+Durant <- list(avg = D.avg, shoot = D.shoot)
+direct <- list(regular = JD_R, playoff = JD_P)
 saveRDS(James, file = "data/james.rds")
 saveRDS(Durant, file = "data/durant.rds")
+saveRDS(direct, file = "data/direct.rds")
