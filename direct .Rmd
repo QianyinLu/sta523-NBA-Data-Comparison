@@ -18,24 +18,27 @@ playoff <- direct$playoff
 regular1 <- regular[1:26,]
 regular2 <- regular[27:32,]
 regular3 <- regular[-c(1:32),]
+final.2012 <- playoff[1:10,]
+final.2017 <- playoff[11:20,]
+final.2018 <- playoff[21:28,]
 
+compare.plot <- function(game){
 
-compare.plot <- function(regular){
-
-regular.sum <- regular%>%
+game.sum <- game%>%
   group_by(player)%>%
   summarize("MIN" = mean(MP) ,"PTS" = mean(PTS), "REB" = mean(TRB),
             "AST" = mean(AST), "BLK" = mean(BLK), "STL" = mean(STL), 
             "FG%" = mean(`FG%`), "3P%" = mean(`3P%`), "FT%" = mean(`FT%`))
 
 
-regular.diff <- rbind(data.frame(-diff(as.matrix(regular.sum[,-1]))),data.frame(diff(as.matrix(regular.sum[,-1]))))
-regular.diff[regular.diff < 0] <- 0 
-regular.diff[2,] <- -regular.diff[2,]
-regular.summary <- cbind(regular.sum[,1],regular.diff)%>%
+game.diff <- rbind(data.frame(-diff(as.matrix(game.sum[,-1]))),
+                   data.frame(diff(as.matrix(game.sum[,-1]))))
+game.diff[game.diff < 0] <- 0 
+game.diff[2,] <- -game.diff[2,]
+game.summary <- cbind(game.sum[,1],game.diff)%>%
   gather(key = "category", value = "value", -player)
 
-ggplot(regular.summary, aes(x = category, y = value, group = category))+
+ggplot(game.summary, aes(x = category, y = value, group = category))+
   geom_bar(stat='identity', aes(fill= player),width = .5)+
   scale_fill_manual(name="Player", 
                     labels = c("James", "Durant"), 
@@ -45,5 +48,5 @@ ggplot(regular.summary, aes(x = category, y = value, group = category))+
     coord_flip()
 }
 
-compare.plot(regular1)
+compare.plot(regular3)
 ```
