@@ -19,3 +19,153 @@ Durant <- readRDS("data/durant.rds")
 direct <- readRDS("data/direct.rds")
 Image <- readRDS("data/image.rds")
 ```
+
+```{r timeleft}
+data <- Durant$shoot$`Time Left in Quarter`
+data$Value <- factor(data$Value,
+                     levels = c( "< 3 minutes", "3-6 minutes", "> 6 minutes"))
+data <- data[data$season == "2017-2018",]
+  
+g <- ggplot(data, aes(x=Value, y=`FG%`, color = Value)) + 
+     geom_point(size=5) + 
+     geom_segment(aes(x=Value, 
+                  xend=Value, 
+                  y=0, 
+                  yend=`FG%`),
+                  color="#b2b2b2", size=1) +
+     labs(y="Field Goal Percentage",
+          x="Time Left") + 
+     ylim(0,0.6) +
+     theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+g
+
+data <- James$shoot$`Time Left in Quarter`
+data$Value <- factor(data$Value,
+                     levels = c( "< 3 minutes", "3-6 minutes", "> 6 minutes"))
+data <- data[data$season == "2017-2018",]
+  
+g <- ggplot(data, aes(x=Value, y=`FG%`, color = Value)) + 
+     geom_point(size=5) + 
+     geom_segment(aes(x=Value, 
+                  xend=Value, 
+                  y=0, 
+                  yend=`FG%`),
+                  color="#b2b2b2", size=1) +
+     labs(y="Field Goal Percentage",
+          x="Time Left") + 
+     ylim(0,0.6) +
+     theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+  
+g
+```
+
+```{r}
+data <- James$shoot$`Shot Type`
+data <- data[data$season == season.make(input$advanced_season_J),]
+  
+g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+  geom_bar(stat='identity') +
+  labs(y="Field Goals Attempts", 
+       x=NULL,
+       color=NULL)+
+    theme_light() +
+    coord_polar()
+  
+g
+
+data <- Durant$shoot$`Shot Type`
+data <- data[data$season == season.make(input$advanced_season_D),]
+  
+g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+  geom_bar(stat='identity') +
+  labs(y="Field Goals Attempts", 
+       x=NULL,
+       color=NULL)+
+    theme_light() +
+    coord_polar()
+  
+g
+```
+
+```{r}
+data <- Durant$shoot$`Shot Distance`
+data$Value <- factor(data$Value,
+                     levels = unique(data$Value))
+data <- data[data$season == season.make(input$advanced_season_D),]
+  
+g <- ggplot(data, aes(x=Value, y=`FG%`, color = Value)) + 
+     geom_point(size=5) + 
+     geom_segment(aes(x=Value, 
+                  xend=Value, 
+                  y=0, 
+                  yend=`FG%`),
+                  color="#b2b2b2", size=1) +
+     labs(y="Field Goal Percentage",
+          x="Time Left") + 
+     ylim(0,1) +
+     theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+g
+
+data <- James$shoot$`Shot Distance`
+data$Value <- factor(data$Value,
+                     levels = unique(data$Value))
+data <- data[data$season == season.make(input$advanced_season_J),]
+  
+g <- ggplot(data, aes(x=Value, y=`FG%`, color = Value)) + 
+     geom_point(size=5) + 
+     geom_segment(aes(x=Value, 
+                  xend=Value, 
+                  y=0, 
+                  yend=`FG%`),
+                  color="#b2b2b2", size=1) +
+     labs(y="Field Goal Percentage",
+          x="Time Left") + 
+     ylim(0,1) +
+     theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+  
+g
+```
+
+```{r}
+data <- James$shoot$`Game Location`
+data <- data[data$season == season.make(input$advanced_season_J),]
+  
+g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+  geom_bar(stat='identity') +
+  labs(y="Field Goals Attempts", 
+       x=NULL,
+       color=NULL)+
+    theme_light() +
+    coord_polar()
+  
+return(g)
+
+data <- Durant$shoot$`Game Location`
+data <- data[data$season == season.make(input$advanced_season_D),]
+  
+g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+  geom_bar(stat='identity') +
+  labs(y="Field Goals Attempts", 
+       x=NULL,
+       color=NULL)+
+    theme_light() +
+    coord_polar()
+  
+return(g)
+```
