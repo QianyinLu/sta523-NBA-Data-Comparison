@@ -1,0 +1,49 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+```{r}
+library(tidyverse)
+
+
+direct[is.na(direct)] <- 0  #turn NA to 0
+regular <- direct$regular
+playoff <- direct$playoff
+
+regular1 <- regular[1:26,]
+regular2 <- regular[27:32,]
+regular3 <- regular[-c(1:32),]
+
+
+compare.plot <- function(regular){
+
+regular.sum <- regular%>%
+  group_by(player)%>%
+  summarize("MIN" = mean(MP) ,"PTS" = mean(PTS), "REB" = mean(TRB),
+            "AST" = mean(AST), "BLK" = mean(BLK), "STL" = mean(STL), 
+            "FG%" = mean(`FG%`), "3P%" = mean(`3P%`), "FT%" = mean(`FT%`))
+
+
+regular.diff <- rbind(data.frame(-diff(as.matrix(regular.sum[,-1]))),data.frame(diff(as.matrix(regular.sum[,-1]))))
+regular.diff[regular.diff < 0] <- 0 
+regular.diff[2,] <- -regular.diff[2,]
+regular.summary <- cbind(regular.sum[,1],regular.diff)%>%
+  gather(key = "category", value = "value", -player)
+
+ggplot(regular.summary, aes(x = category, y = value, group = category))+
+  geom_bar(stat='identity', aes(fill= player),width = .5)+
+  scale_fill_manual(name="Player", 
+                    labels = c("James", "Durant"), 
+                    values = c("James"="#00ba38", "Durant"="#f8766d")) + 
+  labs(title= "James vs Durant Winning Comparison",
+       x = "", y = "Winning Percentage")+
+    coord_flip()
+}
+
+compare.plot(regular1)
+```
