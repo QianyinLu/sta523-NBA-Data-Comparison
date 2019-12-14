@@ -1,0 +1,156 @@
+---
+title: "plot"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(tidyverse)
+library(gganimate)
+```
+
+```{r Read Data}
+D <- readRDS("durant_cleaned.rds")
+J <- readRDS("james_cleaned.rds")
+```
+
+
+```{r location}
+ggplot() + 
+  geom_col(data = D[[2]]$`Game Location`, aes(x = season, y = `FG%`, fill = Value), position = "dodge") +
+  labs(title="Durant FG% by Game Location", 
+       subtitle="Drawn from Shot", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage", 
+       color=NULL) +
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, size = 8),  # rotate x axis text
+        panel.grid.minor = element_blank())
+ggplot() + 
+  geom_col(data = J[[2]]$`Game Location`, aes(x = season, y = `FG%`, fill = Value), position = "dodge") +
+  labs(title="James FG% by Game Location", 
+       subtitle="Drawn from Shot", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage", 
+       color=NULL) +
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, size = 8),  # rotate x axis text
+        panel.grid.minor = element_blank())
+
+```
+
+```{r ShotDistance}
+ggplot(D[[2]]$`Shot Distance`, aes(x=season, y = `FG%`, group = Value, color = Value)) + geom_line()+
+  labs(title="Durant FG% by Shot Distance", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage", 
+       color=NULL) +  # title and caption
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, size = 8),  # rotate x axis text
+        panel.grid.minor = element_blank()) 
+ggplot(J[[2]]$`Shot Distance`, aes(x=season, y = `FG%`, group = Value, color = Value)) + geom_line()+
+  labs(title="James FG% by Shot Distance", 
+       subtitle="Drawn from Shot", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage", 
+       color=NULL) +  # title and caption
+  theme(axis.text.x = element_text(angle = 90, vjust=0.5, size = 8),  # rotate x axis text
+        panel.grid.minor = element_blank()) 
+```
+
+```{r typeStatic}
+ggplot(D[[2]]$`Shot Type`, aes(x = Value, y = `FG%`, fill = Value)) + 
+  geom_bar(stat='identity') +
+  labs(title="Durant FG% by Shot Type Each Season", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage", 
+       color=NULL) +
+  theme_bw() +
+  coord_flip() +
+  facet_wrap( ~ season)
+ggplot(J[[2]]$`Shot Type`, aes(x = Value, y = `FG%`, fill = Value)) + 
+  geom_bar(stat='identity') +
+  labs(title="James FG% by Shot Type Each Season", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage", 
+       color=NULL) +
+  theme_bw() +
+  coord_flip() +
+  facet_wrap( ~ season)
+
+```
+
+
+```{r ShotTypeAnimation}
+ggplot(D[[2]]$`Shot Type`, aes(x = Value, y = `FG%`, fill = Value)) + 
+  geom_bar(stat='identity') +
+  labs(title="Durant FG% by Shot Type Each Season", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage", 
+       color=NULL) +
+  theme_bw() +
+  coord_flip()+
+  # gganimate specific bits:
+  transition_states(season,transition_length = 2,state_length = 1) +
+  enter_fade() + 
+  exit_shrink() +
+  ease_aes('sine-in-out')
+
+ggplot(J[[2]]$`Shot Type`, aes(x = Value, y = `FG%`, fill = Value)) + 
+  geom_bar(stat='identity') +
+  labs(title="James FG% by Shot Type Each Season", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage", 
+       color=NULL) +
+  theme_bw() +
+  coord_flip()+
+  # gganimate specific bits:
+  transition_states(season,transition_length = 2,state_length = 1) +
+  enter_fade() + 
+  exit_shrink() +
+  ease_aes('sine-in-out')
+```
+
+```{r Timeleft}
+D[[2]]$`Time Left in Quarter`$Value <- factor(D[[2]]$`Time Left in Quarter`$Value, levels = c( "< 3 minutes", "3-6 minutes", "> 6 minutes"))
+
+ggplot(D[[2]]$`Time Left in Quarter`, aes(x=Value, y=`FG%`, color = Value)) + 
+   geom_point(size=3) + 
+  geom_segment(aes(x=Value, 
+                   xend=Value, 
+                   y=0, 
+                   yend=`FG%`)) +
+  labs(title="Durant FG% by Time Left in Quater Each Season", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage",
+       x="Time Left") + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  transition_states(season,transition_length = 2,state_length = 1) +
+  enter_fade() + 
+  exit_shrink() +
+  ease_aes('sine-in-out')
+
+
+J[[2]]$`Time Left in Quarter`$Value <- factor(J[[2]]$`Time Left in Quarter`$Value, levels = c( "< 3 minutes", "3-6 minutes", "> 6 minutes"))
+ggplot(J[[2]]$`Time Left in Quarter`, aes(x=Value, y=`FG%`, color = Value)) + 
+   geom_point(size=3) + 
+  geom_segment(aes(x=Value, 
+                   xend=Value, 
+                   y=0, 
+                   yend=`FG%`)) +
+  labs(title="Durant FG% by Time Left in Quater Each Season", 
+       caption="Source:Basktetball Reference", 
+       y="Field Goal Percentage",
+       x="Time Left") + 
+  theme(axis.text.x = element_text(angle=65, vjust=0.6)) +
+  transition_states(season,transition_length = 2,state_length = 1) +
+  enter_fade() + 
+  exit_shrink() +
+  ease_aes('sine-in-out')
+
+```
+
+```{r}
+
+```
+
+
+
+
