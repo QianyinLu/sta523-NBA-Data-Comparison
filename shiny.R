@@ -5,6 +5,7 @@ suppressMessages(library(ggiraph))
 James <- readRDS("data/james.rds")
 Durant <- readRDS("data/durant.rds")
 Image <- readRDS("data/image.rds")
+direct <- readRDS("data/direct.rds")
 
 ui <- fixedPage(
   navbarPage(title = "James VS Durant",
@@ -31,7 +32,7 @@ ui <- fixedPage(
                         h4(textOutput("basic_info")),
                         ggiraphOutput("basic_plot"),
                         div(align = "right",
-                            "Source: "))
+                            "Source: https://www.basketball-reference.com/"))
                ),
                fixedRow(
                  column(width = 3,
@@ -45,7 +46,7 @@ ui <- fixedPage(
                         h3(textOutput("summary_stats_header")),
                         tableOutput("summary_stats"),
                         div(align = "right",
-                            "Source: "),
+                            "Source: https://www.basketball-reference.com/"),
                         "Note :", br(),
                         "MIN -- Minutes Per Game", br(),
                         "PTS -- Points", br(),
@@ -79,10 +80,8 @@ ui <- fixedPage(
                                  column(width = 3,
                                         uiOutput("advance_image"))
                                ),
-                               
                                div(align = "right",
-                                   h4(textOutput("advance_plot_source")))
-                               
+                                   "Source: https://www.basketball-reference.com/")
                         )
                       ),
                       fluidRow(
@@ -113,13 +112,15 @@ ui <- fixedPage(
                                         plotOutput("advance_p2")
                                  )
                                ),
+                               div(align = "right",
+                                   "Source: https://www.basketball-reference.com/"),
                                h3("Advanced summary stats for Lebron James"),
                                h4(textOutput("advance_summary_header_J")),
                                tableOutput("advance_summary_stats_J"),
                                h4(textOutput("Advanced summary stats for Kevin Durant")),
                                tableOutput("advance_summary_stats_D"),
                                div(align = "right",
-                                   h4(textOutput("advance_table_source"))),
+                                   "Source: https://www.basketball-reference.com/"),
                                "Note:", br(),
                                "FG: Field Goals", br(),
                                "FGA: Field Goals Attempts", br(),
@@ -144,7 +145,9 @@ ui <- fixedPage(
                                             uiOutput("D_OKC"))
                                  )
                                ),
-                               tableOutput("record_reg_table"))
+                               tableOutput("record_reg_table"),
+                               div(align = "right",
+                                   "Source: https://www.basketball-reference.com/"))
                       ),
                       h2("The NBA Final"),
                       h3("Oklahoma City Thunder VS Miami Heat"),
@@ -328,7 +331,7 @@ server <- function(input, output){
              x=NULL,
              color=NULL)+
         theme_light() +
-        ylim(0, 1000) +
+        ylim(0, 1200) +
         coord_polar() +
         theme(axis.title = element_text(size = 20),
               axis.text = element_text(size = 15),
@@ -419,7 +422,7 @@ server <- function(input, output){
              x=NULL,
              color=NULL)+
         theme_light() +
-        ylim(0, 1000) +
+        ylim(0, 1200) +
         coord_polar() +
         theme(axis.title = element_text(size = 20),
               axis.text = element_text(size = 15),
