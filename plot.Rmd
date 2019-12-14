@@ -79,28 +79,28 @@ ggplot(J[[2]]$`Shot Type`, aes(x = Value, y = `FG%`, fill = Value)) +
 
 
 ```{r ShotTypeAnimation}
-ggplot(D[[2]]$`Shot Type`, aes(x = Value, y = `FG%`, fill = Value)) + 
+ggplot(D[[2]]$`Shot Type`, aes(x = Value, y = `FGA`, fill = Value)) + 
   geom_bar(stat='identity') +
   labs(title="Durant FG% by Shot Type Each Season", 
        caption="Source:Basktetball Reference", 
        y="Field Goal Percentage", 
        color=NULL) +
   theme_bw() +
-  coord_flip()+
+  coord_polar()+
   # gganimate specific bits:
   transition_states(season,transition_length = 2,state_length = 1) +
   enter_fade() + 
   exit_shrink() +
   ease_aes('sine-in-out')
 
-ggplot(J[[2]]$`Shot Type`, aes(x = Value, y = `FG%`, fill = Value)) + 
+ggplot(J[[2]]$`Shot Type`, aes(x = Value, y = `FGA`, fill = Value)) + 
   geom_bar(stat='identity') +
   labs(title="James FG% by Shot Type Each Season", 
        caption="Source:Basktetball Reference", 
        y="Field Goal Percentage", 
        color=NULL) +
   theme_bw() +
-  coord_flip()+
+  coord_polar()+
   # gganimate specific bits:
   transition_states(season,transition_length = 2,state_length = 1) +
   enter_fade() + 
