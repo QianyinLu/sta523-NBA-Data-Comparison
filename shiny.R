@@ -670,9 +670,9 @@ server <- function(input, output){
   compare.plot <- function(game){
     game.sum <- game%>%
       group_by(player)%>%
-      summarize("Minutes" = mean(MP) ,"Points" = mean(PTS), "Rebounds" = mean(TRB),
-                "Assists" = mean(AST), "Blocks" = mean(BLK), "Steels" = mean(STL), 
-                "Field Goals" = mean(`FG%`), "Three-points" = mean(`3P%`), "Free Throw" = mean(`FT%`))
+      summarize("Minutes" = mean(MP, na.rm = T) ,"Points" = mean(PTS, na.rm = T), "Rebounds" = mean(TRB, na.rm = T),
+                "Assists" = mean(AST, na.rm = T), "Blocks" = mean(BLK, na.rm = T), "Steels" = mean(STL, na.rm = T), 
+                "Field Goals" = mean(`FG%`, na.rm = T), "Three-points" = mean(`3P%`, na.rm = T), "Free Throw" = mean(`FT%`))
     
     
     game.diff <- rbind(data.frame(-diff(as.matrix(game.sum[,-1]))),
@@ -685,7 +685,7 @@ server <- function(input, output){
     ggplot(game.summary, aes(x = category, y = value, group = category))+
       geom_bar(stat='identity', aes(fill= player),width = .5)+
       scale_fill_manual(name="Player", 
-                        labels = c("James", "Durant"), 
+                        labels = c("Durant", "James"), 
                         values = c("James"="#00ba38", "Durant"="#f8766d")) + 
       labs(x = "", y = "Winning Percentage")+
       scale_y_continuous(labels = NULL) +
