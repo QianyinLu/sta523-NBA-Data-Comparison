@@ -90,6 +90,7 @@ data <- J.season %>%
   html_text() %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
 data <- data[-(length(season)+1),]
+
 J.reg.avg <- as.data.frame(cbind(season, team, data),
                            stringsAsFactors = FALSE)     
 names(J.reg.avg) <- column
@@ -113,6 +114,7 @@ data <- James %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
 data <- data[-(length(season)+1),]
 J.playoff.avg <- as.data.frame(cbind(season, team, data),
+
                            stringsAsFactors = FALSE)     
 names(J.playoff.avg) <- column
 J.avg <- list(regular = J.reg.avg, playoff = J.playoff.avg)
@@ -137,6 +139,7 @@ data <- D.season %>%
   html_text() %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
 data <- data[-(length(season)+1),]
+
 D.reg.avg <- as.data.frame(cbind(season, team, data),
                             stringsAsFactors = FALSE)     
 names(D.reg.avg) <- column
@@ -159,6 +162,7 @@ data <- Durant %>%
   matrix(ncol = length(column) - 2, byrow = TRUE)
 data <- data[-(length(season)+1),]
 D.playoff.avg <- as.data.frame(cbind(season, team, data),
+
                             stringsAsFactors = FALSE)     
 names(D.playoff.avg) <- column
 D.avg <- list(regular = D.reg.avg, playoff = D.playoff.avg)
