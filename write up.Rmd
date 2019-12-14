@@ -15,13 +15,13 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The main sources of data in our project are two popular NBA stat websites: basketball-reference.com and espn.com.
 
-In the data_scraping.R, firstly we scraped the Game Log of LeBron James (regular season, 2004-2019) and Kevin Durant (regular season, 2008-2019) from basketball-reference.com. Then we scraped both LeBron James's (2006-2018) and Kevin Durant's (2010-2014, 2016-2019) Playoffs Game Log. Next we get both players' shooting data during all the periods (regular season and Playoffs). At last we scraped their regular season average data from espn.com. We saved the raw data in james_raw.rds and durant_raw.rds.
+In the data_scraping.R, firstly we scraped the Game Log of LeBron James (regular season, 2004-2019) and Kevin Durant (regular season, 2008-2019) from basketball-reference.com. Then we scraped both LeBron James's (2006-2018) and Kevin Durant's (2010-2014, 2016-2019) Playoffs Game Log. Next we get both players' shooting data during all the periods (regular season and Playoffs). At last we scraped both their regular season and playoff periods average data from espn.com. We saved the raw data in james_raw.rds and durant_raw.rds.
 
-In the data_cleaning.R, we firstly built some helper functions (in general: to.na, time.to.num; for "average": split1, split2; for "shooting": shooting.clean) to help cleaning the data. We cleaned the regular season data by modifying column names, removing redundant data, dealing with missing data and formatting, and then repeated a similar process for the playoff data. Next we formatted the regular season average data correctly and cleaned the shooting data with missing values and non-numerics. At last, we got two lists of well structured data: james.rds and durant.rds.
+In the data_cleaning.R, we firstly built some helper functions (in general: to.na, time.to.num; for "average": split1, split2; for "shooting": shooting.clean; season.make) to help cleaning the data. We cleaned the regular season data by modifying column names, removing redundant data, dealing with missing data and formatting, and then repeated a similar process for the playoff data. Next we formatted the regular season/ playoffs average data correctly and cleaned the shooting data with missing values and non-numerics. We also tried to get records of face-to-face matches between James and Durant. At last, we got two lists of well structured data: james.rds and durant.rds. Each list has four main sub-lists (reg, shoot, playoff and avg). We will use these data to do analysis about the two players and visulize our results by tables and dynamic plots in a Shiny app.
 
 The variables codebook of our data is as the following:
 Date -- Date of Game
-season -- 
+season -- Game Season
 Series -- 
 Tm/Team -- Team Name
 Home -- Whether Play at Home
@@ -52,8 +52,8 @@ GmSc -- Game Score
 +/- -- Plus/Minus
 Res.w -- 
 Res.diff --
-Split -- 
-Value --
+Split -- Type of Splits
+Value -- Record of Value
 eFG% -- 
 Ast'd -- 
 %Ast'd -- 
