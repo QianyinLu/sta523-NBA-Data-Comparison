@@ -5,16 +5,20 @@ suppressMessages(library(ggiraph))
 James <- readRDS("data/james.rds")
 Durant <- readRDS("data/durant.rds")
 Image <- readRDS("data/image.rds")
+direct <- readRDS("data/direct.rds")
+
+direct[is.na(direct)] <- 0  
+regular <- direct$regular
+playoff <- direct$playoff
+regular1 <- regular[1:26,]
+regular2 <- regular[27:32,]
+regular3 <- regular[-c(1:32),]
+final.2012 <- playoff[1:10,]
+final.2017 <- playoff[11:20,]
+final.2018 <- playoff[21:28,]
 
 ui <- fixedPage(
   navbarPage(title = "James VS Durant",
-             tabPanel(title = "Intro",
-                      div(align="center",
-                          h1("Durant VS James")),
-                      div(align = "center",
-                          uiOutput(outputId = "player_photo_intro")),
-                      
-             ),
              tabPanel(
                title = "Basic",
                fixedRow(
@@ -69,7 +73,7 @@ ui <- fixedPage(
              tabPanel(title = "Advanced",
                       fixedRow(
                         column(width = 3,
-                               h2("Player Advanced Data"),
+                               h2("Advanced Data"),
                                radioButtons(inputId = "advance_player_name", label = "Player",
                                             choices = c("Lebron James", "Kevin Durant")),
                                radioButtons(inputId = "advance_data_type", label = "Type",
@@ -79,56 +83,92 @@ ui <- fixedPage(
                         
                         column(width = 9,
                                h2(textOutput("advance_player_name")),
-                               plotOutput("advance_plot"),
+                               h3(textOutput("advance_player_info")),
+                               fluidRow(
+                                 column(width = 6,
+                                        ggiraphOutput("advance_plot")),
+                                 column(width = 3,
+                                        uiOutput("advance_image"))
+                               ),
+                               
                                div(align = "right",
-                                   h4(textOutput("advance_plot_source"))),
-                               h3(textOutput("advance_summary_stats_header")),
-                               tableOutput("advance_summary_stats"),
-                               div(align = "right",
-                                   h4(textOutput("advance_table_source")))
+                                   h4(textOutput("advance_plot_source")))
+                               
                         )
                       ),
                       fluidRow(
                         column(width = 3,
-                               selectInput(inputId = "advance_data_type_2", label = "Type",
-                                           choices = c("Game Location", "Game Result",
-                                                       "Shot Points", "Shot Distance",
-                                                       "Shot Type", "Quarter",
-                                                       "Time Left in Quarter",
-                                                       "Margin","Opponent","Month")),
-                               selectInput(inputId = "advance_james_season", label = "Season for James",
-                                           choices =  unique(James$avg$season)),
-                               selectInput(inputId = "advance_durant_season", label = "Season for Durant",
-                                           choices = unique(Durant$avg$season))
+                               h2("Comparison"),
+                               radioButtons(inputId = "advance_data_type_2", label = "Type",
+                                            choices = c("Game Location", "Shot Distance",
+                                                        "Shot Type", "Time Left in Quarter")),
+                               sliderInput("advanced_season_J", "Season for James", 2003, 2018, 2003, step = 1, 
+                                           animate=animationOptions(interval=1000, loop = T,
+                                                                    playButton = "Start", pauseButton = "Stop")),
+                               sliderInput("advanced_season_D", "season for Durant", 2007, 2018, 2007, step = 1, 
+                                           animate=animationOptions(interval=1000, loop = T,
+                                                                    playButton = "Start", pauseButton = "Stop"))
                         ),
                         
                         column(width = 9,
                                h2(textOutput("advance_title")),
                                fluidRow(
-                                 column(width = 4.5,
+                                 column(width = 9,
+                                        h3(textOutput("advance_player_name2")),
+                                        h4(textOutput("advance_player_info2")),
                                         plotOutput("advance_p1")
                                  ),
-                                 column(width = 4.5,
+                                 column(width = 9,
+                                        h3(textOutput("advance_player_name3")),
+                                        h4(textOutput("advance_player_info3")),
                                         plotOutput("advance_p2")
                                  )
-                               )
+                               ),
+                               h3("Advanced summary stats for Lebron James"),
+                               h4(textOutput("advance_summary_header_J")),
+                               tableOutput("advance_summary_stats_J"),
+                               h4(textOutput("Advanced summary stats for Kevin Durant")),
+                               tableOutput("advance_summary_stats_D"),
+                               div(align = "right",
+                                   h4(textOutput("advance_table_source"))),
+                               "Note:", br(),
+                               "FG: Field Goals", br(),
+                               "FGA: Field Goals Attempts", br(),
+                               "FG%: Field Goals Percentage"
                         )
                       )
              ),
              tabPanel(title = "Record",
                       h1("Durant VS James"),
-                      h2("Rugular Season"),
+                      h2("Regular Season"),
                       fluidRow(
                         column(width = 6,
-                               ggiraphOutput("record_reg_plot")),
+                               plotOutput("record_reg_plot1"),
+                               div(align = "right",
+                                   "Source: https://www.espn.com/nba/")),
                         column(width = 6,
                                fluidRow(
+                                 column(width = 2,
+                                        div(align = "center",
+                                            uiOutput("J_MIA"))),
                                  column(width = 2),
-                                 column(width = 2, uiOutput("J_MIA")),
-                                 column(width = 2, uiOutput("D_OKC"))
+                                 column(width = 2,
+                                        div(align = "center",
+                                            uiOutput("D_OKC"))
+                                 )
                                ),
-                               tableOutput("record_reg_table"))
-                      )
+                               tableOutput("record_reg_table"),
+                        )
+                      ),
+                      plotOutput("record_reg_plot2"),
+                      plotOutput("record_reg_plot3"),
+                      plotOutput("record_reg_plot4"),
+                      h2("The NBA Final"),
+                      h3("Oklahoma City Thunder VS Miami Heat"),
+                      plotOutput("record_reg_plot5"),
+                      h3("Golden State Warriors VS Cleveland Cavaliers (Twice)"),
+                      plotOutput("record_reg_plot6"),
+                      plotOutput("record_reg_plot7")
              )
   )
 )
@@ -246,8 +286,405 @@ server <- function(input, output){
   
   # Advanced Page
   
+  ## function to make season
+  season.make <- function(start, end = NULL){
+    if(is.null(end)){
+      end = start
+    }
+    sapply(start:end, function(x){
+      paste0(x, "-", x + 1)
+    })
+  }
+  
+  ## text
+  output$advance_player_name <- renderText({input$advance_player_name})
+  output$advance_player_info <- renderText({input$advance_data_type})
+  output$advance_player_name2 <- renderText({
+    paste("James in Season", season.make(input$advanced_season_J))
+  })
+  output$advance_player_name3 <- renderText({
+    paste("Durant in Season", season.make(input$advanced_season_D))
+  })
+  output$advance_player_info2 <- renderText({input$advance_data_type_2})
+  output$advance_player_info3 <- renderText({input$advance_data_type_2})
+  output$advance_summary_header_J <- renderText({input$advance_data_type_2})
+  output$advance_summary_header_D <- renderText({input$advance_data_type_2})
+  
+  ## table
+  table.J <- reactive({
+    James$shoot[[input$advance_data_type_2]] %>%
+      filter(season == season.make(input$advanced_season_J)) %>%
+      select(Value, FG, FGA, `FG%`)
+  })
+  output$advance_summary_stats_J <- renderTable({
+    table.J()
+  })
+  table.D <- reactive({
+    Durant$shoot[[input$advance_data_type_2]] %>%
+      filter(season == season.make(input$advanced_season_D)) %>%
+      select(Value, FG, FGA, `FG%`)
+  })
+  output$advance_summary_stats_D <- renderTable({
+    table.D()
+  })
+  
+  ## image
+  output$advance_image <- renderText({
+    url <- ifelse(input$advance_player_name == "Lebron James",
+                  Image$James[[2]],
+                  Image$Durant[[3]])
+    return(createImage(url, width = 400))
+  })
+  
+  ## Animate plot
+  anigraph_1 <- reactive({
+    if(input$advance_data_type_2 == "Game Location"){
+      data <- James$shoot$`Game Location`
+      data <- data[data$season == season.make(input$advanced_season_J),]
+      
+      g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+        geom_bar(stat='identity') +
+        labs(y="Field Goals Attempts", 
+             x=NULL,
+             color=NULL)+
+        theme_light() +
+        ylim(0, 1000) +
+        coord_polar() +
+        theme(axis.title = element_text(size = 20),
+              axis.text = element_text(size = 15),
+              legend.title = element_text(size = 20),
+              legend.text = element_text(size = 15))
+      
+      return(g)
+    }
+    if(input$advance_data_type_2 == "Shot Distance"){
+      data <- James$shoot$`Shot Distance`
+      data$Value <- factor(data$Value,
+                           levels = unique(data$Value))
+      data <- data[data$season == season.make(input$advanced_season_J),]
+      
+      g <- ggplot(data, aes(x=Value, y=`FG%`, color = Value)) + 
+        geom_point(size=5) + 
+        geom_segment(aes(x=Value, 
+                         xend=Value, 
+                         y=0, 
+                         yend=`FG%`),
+                     color="#b2b2b2", size=1) +
+        labs(y="Field Goal Percentage",
+             x="Time Left") + 
+        ylim(0,1) +
+        theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 15),
+              axis.title = element_text(size = 20),
+              axis.text.y = element_text(size = 15),
+              legend.title = element_text(size =  20),
+              legend.text = element_text(size = 15))
+      
+      return(g)
+    }
+    if(input$advance_data_type_2 == "Shot Type"){
+      data <- James$shoot$`Shot Type`
+      data <- data[data$season == season.make(input$advanced_season_J),]
+      
+      g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+        geom_bar(stat='identity') +
+        labs(y="Field Goals Attempts", 
+             x=NULL,
+             color=NULL)+
+        theme_light() +
+        ylim(0, 1650) +
+        coord_polar() +
+        theme(axis.title = element_text(size = 20),
+              axis.text = element_text(size = 15),
+              legend.title = element_text(size = 20),
+              legend.text = element_text(size = 15))
+      
+      return(g)
+    }
+    if(input$advance_data_type_2 == "Time Left in Quarter"){
+      data <- James$shoot$`Time Left in Quarter`
+      data$Value <- factor(data$Value,
+                           levels = c( "< 3 minutes", "3-6 minutes", "> 6 minutes"))
+      data <- data[data$season == season.make(input$advanced_season_J),]
+      
+      g <- ggplot(data, aes(x=Value, y=`FG%`, color = Value)) + 
+        geom_point(size=5) + 
+        geom_segment(aes(x=Value, 
+                         xend=Value, 
+                         y=0, 
+                         yend=`FG%`),
+                     color="#b2b2b2", size=1) +
+        labs(y="Field Goal Percentage",
+             x="Time Left") +
+        theme_light() +
+        ylim(0, 0.6) +
+        theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 15),
+              axis.title = element_text(size = 20),
+              axis.text.y = element_text(size = 15),
+              legend.title = element_text(size =  20),
+              legend.text = element_text(size = 15))
+      return(g)
+    }
+  })
+  output$advance_p1 <- renderPlot({
+    return(anigraph_1())
+  })
+  anigraph_2 <- reactive({
+    if(input$advance_data_type_2 == "Game Location"){
+      data <- Durant$shoot$`Game Location`
+      data <- data[data$season == season.make(input$advanced_season_D),]
+      
+      g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+        geom_bar(stat='identity') +
+        labs(y="Field Goals Attempts", 
+             x=NULL,
+             color=NULL)+
+        theme_light() +
+        ylim(0, 1000) +
+        coord_polar() +
+        theme(axis.title = element_text(size = 20),
+              axis.text = element_text(size = 15),
+              legend.title = element_text(size = 20),
+              legend.text = element_text(size = 15))
+      
+      return(g)
+    }
+    if(input$advance_data_type_2 == "Shot Distance"){
+      data <- Durant$shoot$`Shot Distance`
+      data$Value <- factor(data$Value,
+                           levels = unique(data$Value))
+      data <- data[data$season == season.make(input$advanced_season_D),]
+      
+      g <- ggplot(data, aes(x=Value, y=`FG%`, color = Value)) + 
+        geom_point(size=5) + 
+        geom_segment(aes(x=Value, 
+                         xend=Value, 
+                         y=0, 
+                         yend=`FG%`),
+                     color="#b2b2b2", size=1) +
+        labs(y="Field Goal Percentage",
+             x="Time Left") + 
+        ylim(0,1) +
+        theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 15),
+              axis.title = element_text(size = 20),
+              axis.text.y = element_text(size = 15),
+              legend.title = element_text(size =  20),
+              legend.text = element_text(size = 15))
+      return(g)
+    }
+    if(input$advance_data_type_2 == "Shot Type"){
+      data <- Durant$shoot$`Shot Type`
+      data <- data[data$season == season.make(input$advanced_season_D),]
+      
+      g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+        geom_bar(stat='identity') +
+        labs(y="Field Goals Attempts", 
+             x=NULL,
+             color=NULL)+
+        theme_light() +
+        ylim(0, 1650) +
+        coord_polar() +
+        theme(axis.title = element_text(size = 20),
+              axis.text = element_text(size = 15),
+              legend.title = element_text(size = 20),
+              legend.text = element_text(size = 15))
+      
+      return(g)
+    }
+    if(input$advance_data_type_2 == "Time Left in Quarter"){
+      data <- Durant$shoot$`Time Left in Quarter`
+      data$Value <- factor(data$Value,
+                           levels = c( "< 3 minutes", "3-6 minutes", "> 6 minutes"))
+      data <- data[data$season == season.make(input$advanced_season_D),]
+      
+      g <- ggplot(data, aes(x=Value, y=`FG%`, color = Value)) + 
+        geom_point(size=5) + 
+        geom_segment(aes(x=Value, 
+                         xend=Value, 
+                         y=0, 
+                         yend=`FG%`),
+                     color="#b2b2b2", size=1) +
+        labs(y="Field Goal Percentage",
+             x="Time Left") + 
+        theme_light() +
+        ylim(0,0.6) +
+        theme(axis.text.x = element_text(angle = 60, hjust = 1, size = 15),
+              axis.title = element_text(size = 20),
+              axis.text.y = element_text(size = 15),
+              legend.title = element_text(size =  20),
+              legend.text = element_text(size = 15))
+      return(g)
+    }
+  })
+  output$advance_p2 <- renderPlot({
+    anigraph_2()
+  })
+  
+  ## Overall plot
+  output$advance_plot <- renderggiraph({
+    if(input$advance_player_name == "Lebron James"){
+      if(input$advance_data_type == "Game Location"){
+        g <- ggplot() + 
+          geom_col_interactive(data = James$shoot$`Game Location`,
+                               aes(x = season, y = `FG%`, fill = Value, 
+                                   tooltip = paste("FG%:",`FG%`)),
+                               position = "dodge") +
+          labs(x = "Season", y = "Field Goal Percentage") +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        return(girafe(code = print(g)))
+      }
+      if(input$advance_data_type == "Shot Distance"){
+        g <- ggplot(James$shoot$`Shot Distance`) +
+          geom_line(aes(x=season, y = `FG%`, group = Value, colour = Value), size = 1.5) +
+          geom_point_interactive(aes(x=season, y = `FG%`,
+                                     group = Value, colour = Value,
+                                     tooltip = paste("FG%:", `FG%`)), size = 5) +
+          labs(x = "Season", y = "Field Goal Percentage") + 
+          theme_light() +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        return(girafe(code = print(g)))
+      }
+      if(input$advance_data_type == "Shot Type"){
+        g <- ggplot(James$shoot$`Shot Type`) + 
+          geom_line(aes(x=season, y = FGA, group = Value, colour = Value), size = 1.5) +
+          geom_point_interactive(aes(x=season, y = FGA, group = Value, colour = Value,
+                                     tooltip = paste("FGA:", FGA)), size = 5) +
+          labs(x = "Season", y = "Field Goal Attempt") +
+          theme_light() +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        return(girafe(code = print(g)))
+      }
+      if(input$advance_data_type == "Time Left in Quarter"){
+        g <- ggplot() + 
+          geom_col_interactive(data = Durant$shoot$`Time Left in Quarter`, aes(x = season, y = `FG%`, fill = Value, tooltip = paste("FG%:", `FG%`)), position = "dodge") +
+          labs(x = "Season", y = "Field Goal Percentage") +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        return(girafe(code = print(g)))
+      }
+    }
+    if(input$advance_player_name == "Kevin Durant"){
+      if(input$advance_data_type == "Game Location"){
+        g <- ggplot() + 
+          geom_col_interactive(data = Durant$shoot$`Game Location`,
+                               aes(x = season, y = `FG%`, fill = Value, 
+                                   tooltip = paste("FG%:",`FG%`)),
+                               position = "dodge") +
+          labs(x = "Season", y = "Field Goal Percentage") +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        return(girafe(code = print(g)))
+      }
+      if(input$advance_data_type == "Shot Distance"){
+        g <- ggplot(Durant$shoot$`Shot Distance`) +
+          geom_line(aes(x=season, y = `FG%`, group = Value, colour = Value), size = 1.5) +
+          geom_point_interactive(aes(x=season, y = `FG%`,
+                                     group = Value, colour = Value,
+                                     tooltip = paste("FG%:", `FG%`)), size = 5) +
+          labs(x = "Season", y = "Field Goal Percentage") +
+          theme_light() +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        return(girafe(code = print(g)))
+      }
+      if(input$advance_data_type == "Shot Type"){
+        g <- ggplot(Durant$shoot$`Shot Type`) + 
+          geom_line(aes(x=season, y = FGA, group = Value, colour = Value), size = 1.5) +
+          geom_point_interactive(aes(x=season, y = FGA, group = Value, colour = Value,
+                                     tooltip = paste("FGA:", FGA)), size = 5) +
+          labs(x = "Season", y = "Field Goal Attempt") +
+          theme_light() +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        return(girafe(code = print(g)))
+      }
+      if(input$advance_data_type == "Time Left in Quarter"){
+        g <- ggplot() + 
+          geom_col_interactive(data = Durant$shoot$`Time Left in Quarter`, aes(x = season, y = `FG%`, fill = Value, tooltip = paste("FG%:", `FG%`)), position = "dodge") +
+          labs(x = "Season", y = "Field Goal Percentage") +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 15),
+                axis.title = element_text(size = 20),
+                axis.text.y = element_text(size = 15),
+                legend.title = element_text(size =  20),
+                legend.text = element_text(size = 15))
+        return(girafe(code = print(g)))
+      }
+    }
+  })
+  
   # Record Page
   
+  ##function to plot
+  
+  compare.plot <- function(game){
+    
+    game.sum <- game%>%
+      group_by(player)%>%
+      summarize("MIN" = mean(MP) ,"PTS" = mean(PTS), "REB" = mean(TRB),
+                "AST" = mean(AST), "BLK" = mean(BLK), "STL" = mean(STL), 
+                "FG%" = mean(`FG%`), "3P%" = mean(`3P%`), "FT%" = mean(`FT%`))
+    
+    
+    game.diff <- rbind(data.frame(-diff(as.matrix(game.sum[,-1]))),
+                       data.frame(diff(as.matrix(game.sum[,-1]))))
+    game.diff[game.diff < 0] <- 0 
+    game.diff[2,] <- -game.diff[2,]
+    game.summary <- cbind(game.sum[,1],game.diff)%>%
+      gather(key = "category", value = "value", -player)
+    
+    ggplot(game.summary, aes(x = category, y = value, group = category))+
+      geom_bar(stat='identity', aes(fill= player),width = .5)+
+      scale_fill_manual(name="Player", 
+                        labels = c("James", "Durant"), 
+                        values = c("James"="#00ba38", "Durant"="#f8766d")) + 
+      labs(title= "James vs Durant Winning Comparison",
+           x = "", y = "Winning Percentage")+
+      coord_flip()
+  }
+  
+  
+  output$record_reg_plot5 <- renderggiraph(
+    compare.plot(final.2012)
+  )
+  
+  output$record_reg_plot6 <- renderggiraph(
+    compare.plot(final.2017)
+  )
+  
+  output$record_reg_plot7 <- renderggiraph(
+    compare.plot(final.2018)
+  )
+  
+  ## Image
+  output$J_MIA <- renderText({
+    createImage(Image$profile.photo[1], 110)
+  })
+  output$D_OKC <- renderText({
+    createImage(Image$profile.photo[5], 150)
+  })
 }
 
 shinyApp(ui, server)
