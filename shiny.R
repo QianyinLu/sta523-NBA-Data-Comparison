@@ -7,9 +7,11 @@ Durant <- readRDS("data/durant.rds")
 Image <- readRDS("data/image.rds")
 direct <- readRDS("data/direct.rds")
 
-direct[is.na(direct)] <- 0  
+
 regular <- direct$regular
 playoff <- direct$playoff
+regular[is.na(direct)] <- 0  
+playoff[is.na(direct)] <- 0  
 regular1 <- regular[1:26,]
 regular2 <- regular[27:32,]
 regular3 <- regular[-c(1:32),]
@@ -660,11 +662,33 @@ server <- function(input, output){
       scale_fill_manual(name="Player", 
                         labels = c("James", "Durant"), 
                         values = c("James"="#00ba38", "Durant"="#f8766d")) + 
-      labs(title= "James vs Durant Winning Comparison",
-           x = "", y = "Winning Percentage")+
+      labs( x = "", y = "Winning Percentage")+
       coord_flip()
   }
   
+  output$record_reg_table <- renderTable({
+    regular %>%
+      group_by(player)%>%
+      summarize("MIN" = mean(MP) ,"PTS" = mean(PTS), "REB" = mean(TRB),
+                "AST" = mean(AST), "BLK" = mean(BLK), "STL" = mean(STL), 
+                "FG%" = mean(`FG%`), "3P%" = mean(`3P%`), "FT%" = mean(`FT%`))
+  })
+  
+  output$record_reg_plot1 <- renderggiraph(
+    compare.plot(regular)
+  )
+  
+  output$record_reg_plot2 <- renderggiraph(
+    compare.plot(regular1)
+  )
+  
+  output$record_reg_plot3 <- renderggiraph(
+    compare.plot(regular2)
+  )
+  
+  output$record_reg_plot4 <- renderggiraph(
+    compare.plot(regular3)
+  )
   
   output$record_reg_plot5 <- renderggiraph(
     compare.plot(final.2012)
