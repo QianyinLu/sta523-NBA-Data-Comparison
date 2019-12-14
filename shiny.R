@@ -8,6 +8,13 @@ Image <- readRDS("data/image.rds")
 
 ui <- fixedPage(
   navbarPage(title = "James VS Durant",
+             tabPanel(title = "Intro",
+                      div(align="center",
+                          h1("Durant VS James")),
+                      div(align = "center",
+                          uiOutput(outputId = "player_photo_intro")),
+                      
+             ),
              tabPanel(
                title = "Basic",
                fixedRow(
