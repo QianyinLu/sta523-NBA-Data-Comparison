@@ -135,7 +135,7 @@ ggplot(J[[2]]$`Time Left in Quarter`, aes(x=Value, y=`FG%`, color = Value)) +
                    xend=Value, 
                    y=0, 
                    yend=`FG%`)) +
-  labs(title="Durant FG% by Time Left in Quater Each Season", 
+  labs(title="James FG% by Time Left in Quater Each Season", 
        caption="Source:Basktetball Reference", 
        y="Field Goal Percentage",
        x="Time Left") + 
@@ -146,10 +146,109 @@ ggplot(J[[2]]$`Time Left in Quarter`, aes(x=Value, y=`FG%`, color = Value)) +
   ease_aes('sine-in-out')
 
 ```
-
 ```{r}
+season.make <- function(start, end = NULL){
+  if(is.null(end)){
+    end = start
+  }
+  sapply(start:end, function(x){
+    paste0(x, "-", x + 1)
+  })
+}
+```
+
+
+
+
+
+```{r TimeLeft}
+library(shiny)
+
+ui <- fluidPage(
+  ## Set up loop target
+  sliderInput("theSeason", "season", 2007, 2018, 2007, step = 1, 
+              animate=animationOptions(interval=1000, loop = T,
+                                       playButton = "Start", pauseButton = "Stop")),
+  plotOutput(outputId="Durant_Shot_Time")
+)
+
+server <- function(input, output){
+  anigraph <- reactive({
+    # extract specific month. Since month will change automatically, it keeps renewed.
+    D[[2]]$`Time Left in Quarter`$Value <- factor(D[[2]]$`Time Left in Quarter`$Value, 
+                                                  levels = c( "< 3 minutes", "3-6 minutes", "> 6 minutes"))
+    data <- D[[2]]$`Time Left in Quarter`
+    data <- data[data$season == season.make(input$theSeason),]
+  
+  g <- ggplot(data, aes(x=Value, y=`FG%`, color = Value)) + 
+      geom_point(size=5) + 
+      geom_segment(aes(x=Value, 
+                   xend=Value, 
+                   y=0, 
+                   yend=`FG%`),
+                   color="#b2b2b2", size=1) +
+       labs(title="Durant FG% by Time Left in Quater", 
+            subtitle = paste("Season ",  season.make(input$theSeason)),
+            caption="Source:Basktetball Reference", 
+            y="Field Goal Percentage",
+            x="Time Left") + 
+       ylim(0,0.6)
+       theme(axis.text.x = element_text(angle=65, vjust=0.6))
+  
+    return(g)
+  })
+  
+  output$Durant_Shot_Time <- renderPlot({
+    anigraph() # parentheses are essensial
+    
+  })
+}
+
+shinyApp(ui = ui, server = server)
 
 ```
+
+```{r ShotTypeShiny}
+ui <- fluidPage(
+  ## Set up loop target
+  sliderInput("theSeason", "season", 2007, 2018, 2007, step = 1, 
+              animate=animationOptions(interval=1000, loop = T,
+                                       playButton = "Start", pauseButton = "Stop")),
+  plotOutput(outputId="Durant_Shot_type"),
+)
+
+server <- function(input, output){
+  anigraph <- reactive({
+    # extract specific month. Since month will change automatically, it keeps renewed.
+    data <- D[[2]]$`Shot Type`
+    data <- data[data$season == season.make(input$theSeason),]
+  
+  g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+  geom_bar(stat='identity') +
+  labs(title="Durant Field Goals Attempts by Shot Type", 
+       caption="Source:Basktetball Reference", 
+       subtitle = paste("Season ",  season.make(input$theSeason)),
+       y="Field Goals Attempts", 
+       x=NULL,
+       color=NULL) +
+    ylim(0,1650) +
+    theme_bw() +
+    coord_polar()
+  
+    return(g)
+  })
+  output$Durant_Shot_type <- renderPlot({
+    anigraph() # parentheses are essensial
+    
+  })
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+
+
+
 
 
 
