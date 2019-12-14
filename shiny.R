@@ -133,7 +133,9 @@ ui <- fixedPage(
                       h2("Regular Season"),
                       fluidRow(
                         column(width = 6,
-                               ggiraphOutput("record_reg_plot")),
+                               plotOutput("record_reg_plot1"),
+                               div(align = "right",
+                                   "Source: https://www.espn.com/nba/")),
                         column(width = 6,
                                fluidRow(
                                  column(width = 2,
@@ -146,12 +148,38 @@ ui <- fixedPage(
                                  )
                                ),
                                tableOutput("record_reg_table"),
-                               div(align = "right",
-                                   "Source: https://www.basketball-reference.com/"))
+                               )
                       ),
+                      h3("When Durant is in Thunder/SuperSonics while James in Heats"),
+                      plotOutput("record_reg_plot2"),
+                      div(align = "right",
+                          "Source: https://www.espn.com/nba/"),
+                      h3("When Durant is in Thunder while James in Caveliers"),
+                      plotOutput("record_reg_plot3"),
+                      div(align = "right",
+                          "Source: https://www.espn.com/nba/"),
+                      h3("When Durant is in Warrior while James in Caveliers/Lakers"),
+                      plotOutput("record_reg_plot4"),
+                      div(align = "right",
+                          "Source: https://www.espn.com/nba/"),
                       h2("The NBA Final"),
                       h3("Oklahoma City Thunder VS Miami Heat"),
-                      h3("Golden State Warriors VS Cleveland Cavaliers (Twice)")
+                      div(align = "center",
+                          h3("2011-2012 Final Stats")),
+                      plotOutput("record_reg_plot5"),
+                      div(align = "right",
+                          "Source: https://www.espn.com/nba/"),
+                      h3("Golden State Warriors VS Cleveland Cavaliers (Twice)"),
+                      div(align = "center",
+                          h3("2016-2017 Final Stats")),
+                      plotOutput("record_reg_plot6"),
+                      div(align = "right",
+                          "Source: https://www.espn.com/nba/"),
+                      div(align = "center",
+                          h3("2017-2018 Final Stats")),
+                      plotOutput("record_reg_plot7"),
+                      div(align = "right",
+                          "Source: https://www.espn.com/nba/")
                       )
   )
 )
@@ -621,12 +649,91 @@ server <- function(input, output){
   # Record Page
   
   ## Image
-  output$J_MIA <- renderText({
-    createImage(Image$profile.photo[1], 110)
-  })
   output$D_OKC <- renderText({
-    createImage(Image$profile.photo[5], 150)
+    createImage(Image$profile.photo[1], 150)
   })
+  output$J_MIA <- renderText({
+    createImage(Image$profile.photo[5], 200)
+  })
+  
+  ## plot
+  direct[is.na(direct)] <- 0  
+  regular <- direct$regular
+  playoff <- direct$playoff
+  regular1 <- regular[1:26,]
+  regular2 <- regular[27:32,]
+  regular3 <- regular[-c(1:32),]
+  final.2012 <- playoff[1:10,]
+  final.2017 <- playoff[11:20,]
+  final.2018 <- playoff[21:28,]
+  
+  compare.plot <- function(game){
+    game.sum <- game%>%
+      group_by(player)%>%
+      summarize("Minutes" = mean(MP) ,"Points" = mean(PTS), "Rebounds" = mean(TRB),
+                "Assists" = mean(AST), "Blocks" = mean(BLK), "Steels" = mean(STL), 
+                "Field Goals" = mean(`FG%`), "Three-points" = mean(`3P%`), "Free Throw" = mean(`FT%`))
+    
+    
+    game.diff <- rbind(data.frame(-diff(as.matrix(game.sum[,-1]))),
+                       data.frame(diff(as.matrix(game.sum[,-1]))))
+    game.diff[game.diff < 0] <- 0 
+    game.diff[2,] <- -game.diff[2,]
+    game.summary <- cbind(game.sum[,1],game.diff)%>%
+      gather(key = "category", value = "value", -player)
+    
+    ggplot(game.summary, aes(x = category, y = value, group = category))+
+      geom_bar(stat='identity', aes(fill= player),width = .5)+
+      scale_fill_manual(name="Player", 
+                        labels = c("James", "Durant"), 
+                        values = c("James"="#00ba38", "Durant"="#f8766d")) + 
+      labs(x = "", y = "Winning Percentage")+
+      scale_y_continuous(labels = NULL) +
+      coord_flip() +
+      theme_light() +
+      theme(axis.text = element_text(size = 15),
+            axis.title = element_text(size = 20),
+            legend.title = element_text(size =  20),
+            legend.text = element_text(size = 15))
+  }
+  output$record_reg_table <- renderTable({
+    regular %>%
+      group_by(player)%>%
+      summarize("MIN" = mean(MP) ,"PTS" = mean(PTS), "REB" = mean(TRB),
+                "AST" = mean(AST), "BLK" = mean(BLK), "STL" = mean(STL), 
+                "FG%" = mean(`FG%`), "3P%" = mean(`3P%`), "FT%" = mean(`FT%`, na.rm = T))
+  })
+  
+  output$record_reg_plot1 <- renderPlot(
+    compare.plot(regular)
+  )
+  
+  output$record_reg_plot2 <- renderPlot(
+    compare.plot(regular1)
+  )
+  
+  output$record_reg_plot3 <- renderPlot(
+    compare.plot(regular2)
+  )
+  
+  output$record_reg_plot4 <- renderPlot(
+    compare.plot(regular3)
+  )
+  
+  output$record_reg_plot5 <- renderPlot(
+    compare.plot(final.2012)
+  )
+  
+  output$record_reg_plot6 <- renderPlot(
+    compare.plot(final.2017)
+  )
+  
+  output$record_reg_plot7 <- renderPlot(
+    compare.plot(final.2018)
+  )
 }
+
+full <- list(James = James, Durant = Durant, Image = Image, Direct = direct)
+saveRDS(full, "data/full.rds")
 
 shinyApp(ui, server)
