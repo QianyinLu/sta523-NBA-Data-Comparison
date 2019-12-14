@@ -674,31 +674,31 @@ server <- function(input, output){
                 "FG%" = mean(`FG%`), "3P%" = mean(`3P%`), "FT%" = mean(`FT%`))
   })
   
-  output$record_reg_plot1 <- renderggiraph(
+  output$record_reg_plot1 <- renderPlot(
     compare.plot(regular)
   )
   
-  output$record_reg_plot2 <- renderggiraph(
+  output$record_reg_plot2 <- renderPlot(
     compare.plot(regular1)
   )
   
-  output$record_reg_plot3 <- renderggiraph(
+  output$record_reg_plot3 <- renderPlot(
     compare.plot(regular2)
   )
   
-  output$record_reg_plot4 <- renderggiraph(
+  output$record_reg_plot4 <- renderPlot(
     compare.plot(regular3)
   )
   
-  output$record_reg_plot5 <- renderggiraph(
+  output$record_reg_plot5 <- renderPlot(
     compare.plot(final.2012)
   )
   
-  output$record_reg_plot6 <- renderggiraph(
+  output$record_reg_plot6 <- renderPlot(
     compare.plot(final.2017)
   )
   
-  output$record_reg_plot7 <- renderggiraph(
+  output$record_reg_plot7 <- renderPlot(
     compare.plot(final.2018)
   )
   
