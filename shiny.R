@@ -147,40 +147,59 @@ ui <- fixedPage(
                                             uiOutput("D_OKC"))
                                  )
                                ),
-                               tableOutput("record_reg_table"),
+                               tableOutput("record_reg_table")
                                )
                       ),
                       h3("When Durant is in Thunder/SuperSonics while James in Heats"),
-                      plotOutput("record_reg_plot2"),
-                      div(align = "right",
-                          "Source: https://www.espn.com/nba/"),
+                      fluidRow(column(width = 6,
+                             plotOutput("record_reg_plot2"),
+                             div(align = "right",
+                                 "Source: https://www.espn.com/nba/")),
+                             column(width = 6,
+                                    uiOutput("record_image1"))
+                             ),
                       h3("When Durant is in Thunder while James in Caveliers"),
-                      plotOutput("record_reg_plot3"),
-                      div(align = "right",
-                          "Source: https://www.espn.com/nba/"),
+                      fluidRow(column(width = 6,
+                             plotOutput("record_reg_plot3"),
+                             div(align = "right",
+                                 "Source: https://www.espn.com/nba/")),
+                             column(width = 6,
+                                    uiOutput("record_image2"))),
                       h3("When Durant is in Warrior while James in Caveliers/Lakers"),
-                      plotOutput("record_reg_plot4"),
-                      div(align = "right",
-                          "Source: https://www.espn.com/nba/"),
+                      fluidRow(column(width = 6,
+                             plotOutput("record_reg_plot4"),
+                             div(align = "right",
+                                 "Source: https://www.espn.com/nba/")),
+                             column(width = 6,
+                                    uiOutput("record_image3"))),
                       h2("The NBA Final"),
                       h3("Oklahoma City Thunder VS Miami Heat"),
-                      div(align = "center",
-                          h3("2011-2012 Final Stats")),
-                      plotOutput("record_reg_plot5"),
-                      div(align = "right",
-                          "Source: https://www.espn.com/nba/"),
+                      fluidRow(column(width = 6,
+                             div(align = "center",
+                                 h3("2011-2012 Final Stats")),
+                             plotOutput("record_reg_plot5"),
+                             div(align = "right",
+                                 "Source: https://www.espn.com/nba/")),
+                             column(width = 6,
+                                    uiOutput("record_image4"))),
                       h3("Golden State Warriors VS Cleveland Cavaliers (Twice)"),
-                      div(align = "center",
-                          h3("2016-2017 Final Stats")),
-                      plotOutput("record_reg_plot6"),
-                      div(align = "right",
-                          "Source: https://www.espn.com/nba/"),
-                      div(align = "center",
-                          h3("2017-2018 Final Stats")),
-                      plotOutput("record_reg_plot7"),
-                      div(align = "right",
-                          "Source: https://www.espn.com/nba/")
-                      )
+                      fluidRow(column(width = 6,
+                             div(align = "center",
+                                 h3("2016-2017 Final Stats")),
+                             plotOutput("record_reg_plot6"),
+                             div(align = "right",
+                                 "Source: https://www.espn.com/nba/")),
+                             column(width = 6,
+                                    uiOutput("record_image5"))),
+                      fluidRow(column(width = 6,
+                             div(align = "center",
+                                 h3("2017-2018 Final Stats")),
+                             plotOutput("record_reg_plot7"),
+                             div(align = "right",
+                                 "Source: https://www.espn.com/nba/")),
+                             column(width = 6,
+                                    uiOutput("record_image6")))
+             )
   )
 )
 
@@ -655,6 +674,24 @@ server <- function(input, output){
   output$J_MIA <- renderText({
     createImage(Image$profile.photo[5], 200)
   })
+  output$record_image1 <- renderText({
+    createImage(Image$James.vs.Durant[[5]], 400)
+  })
+  output$record_image2 <- renderText({
+    createImage(Image$James.vs.Durant[[6]], 400)
+  })
+  output$record_image3 <- renderText({
+    createImage(Image$James.vs.Durant[[2]], 400)
+  })
+  output$record_image4 <- renderText({
+    createImage(Image$James.vs.Durant[[1]], 400)
+  })
+  output$record_image5 <- renderText({
+    createImage(Image$James.vs.Durant[[4]], 400)
+  })
+  output$record_image6 <- renderText({
+    createImage(Image$James.vs.Durant[[3]], 400)
+  })
   
   ## plot
   direct[is.na(direct)] <- 0  
@@ -733,7 +770,5 @@ server <- function(input, output){
   )
 }
 
-full <- list(James = James, Durant = Durant, Image = Image, Direct = direct)
-saveRDS(full, "data/full.rds")
 
 shinyApp(ui, server)
