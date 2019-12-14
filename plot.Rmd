@@ -247,6 +247,48 @@ shinyApp(ui = ui, server = server)
 ```
 
 
+```{r}
+ui <- fluidPage(
+  ## Set up loop target
+  sliderInput("theSeason", "season", 2007, 2018, 2007, step = 1, 
+              animate=animationOptions(interval=1000, loop = T,
+                                       playButton = "Start", pauseButton = "Stop")),
+  plotOutput(outputId="Durant_Shot_type"),
+)
+server <- function(input, output){
+anigraph <- reactive({
+
+      data <- D[[2]]$`Game Location`
+      data <- data[data$season == season.make(input$theSeason),]
+      
+      g <- ggplot(data, aes(x = Value, y = `FGA`, fill = Value)) + 
+        geom_bar(stat='identity') +
+        labs(y="Field Goals Attempts", 
+             x=NULL,
+             color=NULL)+
+        theme_light() +
+        ylim(0, 2000) +
+        coord_polar() +
+        theme(axis.title = element_text(size = 20),
+              axis.text = element_text(size = 15),
+              legend.title = element_text(size = 20),
+              legend.text = element_text(size = 15))
+      
+      return(g)
+      })
+      output$Durant_Shot_type <- renderPlot({
+      anigraph() 
+})
+}
+shinyApp(ui = ui, server = server)
+
+
+D[[2]]$`Game Location`
+
+```
+
+
+
 
 
 
