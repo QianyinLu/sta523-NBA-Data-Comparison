@@ -23,5 +23,16 @@ Image <- list(
                       "https://s.hdnux.com/photos/67/02/03/14426363/9/920x920.jpg",
                       "https://images.complex.com/complex/images/c_limit,dpr_auto,q_90,w_720/fl_lossy,pg_1/xllde17yqfvpv4vgzw0n/kevin-durant",
                       "https://static01.nyt.com/images/2017/04/07/sports/07durant-web1/07durant-web1-jumbo.jpg?quality=90&auto=webp",
-                      "https://cdn.hoopsrumors.com/files/2017/06/USATSI_10090886-900x1350.jpg"))
+                      "https://cdn.hoopsrumors.com/files/2017/06/USATSI_10090886-900x1350.jpg"),
+  James.vs.Durant = list("https://img.bleacherreport.net/img/images/photos/002/132/194/hi-res-146489701_crop_north.jpg?h=533&w=800&q=70&crop_x=center&crop_y=top",
+                          "https://i.ytimg.com/vi/X1WiD3ySaDc/maxresdefault.jpg",
+                          "https://usatftw.files.wordpress.com/2017/06/usatsi_9768674-1.jpg?w=1000&h=600&crop=1",
+                          "https://static01.nyt.com/images/2017/06/09/sports/09ARATON1/09ARATON1-articleLarge.jpg?quality=75&auto=webp&disable=upscale",
+                          "https://fansided.com/files/2014/01/81745281.jpg",
+                          "https://pmcfootwearnews.files.wordpress.com/2017/01/kevin-durant-lebron-james-nike.jpg?w=700&h=437&crop=1"),
+  profile.photo = list("https://i.cdn.turner.com/nba/nba/.element/media/2.0/teamsites/heat/custom-projects/Player_Bios/imgs/2012-13-lebron-james.jpg",
+                        "https://retohercules.com/images/lebron-james-cavs-png-7.png",
+                        "http://sportsnewsinstant.com/wp-content/uploads/2018/02/1966.png",
+                        "https://cdn-images-1.medium.com/max/661/1*TNbJGhrD-QH6uj9cJoTQqg.png",
+                        "https://bloximages.chicago2.vip.townnews.com/chickashanews.com/content/tncms/assets/v3/editorial/e/4c/e4ce40ef-fbbd-5177-8fdc-d74b0163fef6/53dfd860cedd5.image.jpg"))
 saveRDS(Image, "data/image.rds")
